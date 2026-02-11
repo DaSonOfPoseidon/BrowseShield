@@ -1,4 +1,4 @@
-# BrowseGuard
+# BrowseShield
 
 **Email and Website Security Assessment Platform**
 
@@ -62,46 +62,6 @@ A browser extension and web portal that provides real-time security assessments 
 | Backend API | RESTful API services, auth, data layer | Mike |
 | Threat Detection | URL analysis, phishing heuristics, reputation checking | Andy |
 | ML Scoring Engine | Risk models, confidence scoring, anomaly detection | Mike |
-
----
-
-## Team & Responsibilities
-
-### Jackson – Extension Engineer
-| Area | Responsibilities |
-|------|------------------|
-| Architecture | Browser extension structure, manifest configuration, event hooks |
-| UI/UX | Risk assessment pop-up, visual indicators (color coding, confidence display) |
-| Integration | Secure extension ↔ backend API communication |
-| Security | Password strength detection, insecure input warnings (client-side) |
-| Quality | Extension testing, sandboxing, cross-browser compatibility |
-
-### Dane – Web Portal & Team Lead
-| Area | Responsibilities |
-|------|------------------|
-| Frontend | Web portal architecture, dashboard UI/UX |
-| Auth | Account Holder & sub-user authentication flows |
-| Visualization | Historical data charts, safety rating displays |
-| Features | Parental controls UI, content management (stretch) |
-| Leadership | Team coordination, sprint planning, integration oversight |
-
-### Andy – Security Engineer
-| Area | Responsibilities |
-|------|------------------|
-| Detection | Threat detection service implementation |
-| Heuristics | Phishing/malware detection rules engine |
-| Reputation | URL/domain reputation checking logic |
-| Review | Security architecture review, penetration testing |
-| Compliance | Privacy requirements, user guidance documentation |
-
-### Mike – Data & Backend Engineer
-| Area | Responsibilities |
-|------|------------------|
-| Backend | API architecture, endpoint implementation |
-| Data Layer | Database schema design, data access patterns |
-| ML Models | Risk scoring models, confidence calculations |
-| Analytics | Safety rating aggregation, anomaly detection |
-| Pipeline | Data ingestion, model evaluation, performance tuning |
 
 ---
 

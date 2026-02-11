@@ -1,4 +1,4 @@
-# BrowseGuard - Threat Detection
+# BrowseShield - Threat Detection
 
 URL analysis, phishing heuristics, and domain reputation checking services for identifying malicious content.
 

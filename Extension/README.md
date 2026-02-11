@@ -1,4 +1,4 @@
-# BrowseGuard - Browser Extension
+# BrowseShield - Browser Extension
 
 Real-time security assessments for websites and emails via pop-up UI with risk indicators and confidence scores.
 
@@ -53,7 +53,7 @@ Extension/
 ```json
 {
   "permissions": ["activeTab", "storage", "alarms"],
-  "host_permissions": ["https://api.browseguard.com/*", "<all_urls>"]
+  "host_permissions": ["https://api.browseshield.com/*", "<all_urls>"]
 }
 ```
 

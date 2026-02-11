@@ -1,4 +1,4 @@
-# BrowseGuard Extension - Development Notes
+# BrowseShield Extension - Development Notes
 
 ## Architecture Decisions Log
 
@@ -92,7 +92,7 @@
 ### Authentication Flow (Device Registration)
 ```
 1. User installs extension
-2. Extension prompts: "Link to BrowseGuard account"
+2. Extension prompts: "Link to BrowseShield account"
 3. Opens web portal login in new tab
 4. After login, portal passes token back to extension via:
    - Custom protocol handler, OR

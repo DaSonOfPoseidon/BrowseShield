@@ -1,4 +1,4 @@
-# BrowseGuard - ML Scoring Engine
+# BrowseShield - ML Scoring Engine
 
 Machine learning models for risk scoring, confidence calculations, and anomaly detection in browsing behavior.
 

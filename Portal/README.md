@@ -1,4 +1,4 @@
-# BrowseGuard - Web Portal
+# BrowseShield - Web Portal
 
 Web dashboard for account management, historical data visualization, and multi-user safety monitoring.
 
