@@ -2,11 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='system-ui' font-weight='700' font-size='14'>BS</text></svg>">
   <link rel="stylesheet" href="../styles/popup.css">
 </head>
 <body>
-  <h1>BrowseShield</h1>
-  <p>Protection active.</p>
+  <header class="popup-header">
+    <h1>BrowseShield</h1>
+  </header>
+
+  <section id="score-section" class="score-section">
+    <div id="score-circle" class="score-circle">
+      <span id="score-value" class="score-value">--</span>
+    </div>
+    <p id="status-label" class="status-label">Scanning&hellip;</p>
+  </section>
+
+  <section id="details-section" class="details-section">
+    <div class="detail-row">
+      <span class="detail-icon" id="https-icon">&#128274;</span>
+      <span class="detail-label">HTTPS</span>
+      <span class="detail-value" id="https-value">—</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-icon">&#128196;</span>
+      <span class="detail-label">Forms</span>
+      <span class="detail-value" id="forms-value">—</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-icon">&#128279;</span>
+      <span class="detail-label">Links</span>
+      <span class="detail-value" id="links-value">—</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-icon">&#128274;</span>
+      <span class="detail-label">Password fields</span>
+      <span class="detail-value" id="passwords-value">—</span>
+    </div>
+  </section>
+
+  <footer id="site-footer" class="site-footer">
+    <span id="site-url" class="site-url">—</span>
+  </footer>
+
   <script src="../scripts/popup.js"></script>
 </body>
 </html>

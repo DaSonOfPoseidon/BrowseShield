@@ -1,11 +1,133 @@
 body {
   width: 300px;
-  padding: 16px;
-  font-family: system-ui, sans-serif;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
   margin: 0;
+  color: #1a1a1a;
+  background: #fafafa;
 }
 
-h1 {
-  font-size: 18px;
-  margin: 0 0 8px;
+/* Header */
+.popup-header {
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.popup-header h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Score section */
+.score-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 16px;
+}
+
+.score-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s;
+}
+
+.score-circle.safe { border-color: #22C55E; }
+.score-circle.uncertain { border-color: #F59E0B; }
+.score-circle.suspicious { border-color: #F97316; }
+.score-circle.danger { border-color: #EF4444; }
+
+.score-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.status-label {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.status-label.safe { color: #16a34a; }
+.status-label.uncertain { color: #d97706; }
+.status-label.suspicious { color: #ea580c; }
+.status-label.danger { color: #dc2626; }
+
+/* Details section */
+.details-section {
+  padding: 0 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-icon {
+  width: 20px;
+  text-align: center;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.detail-label {
+  flex: 1;
+  color: #374151;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.detail-value.secure { color: #16a34a; }
+.detail-value.insecure { color: #dc2626; }
+.detail-value.warn { color: #d97706; }
+
+/* Footer */
+.site-footer {
+  padding: 10px 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.site-url {
+  font-size: 11px;
+  color: #9ca3af;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Loading / Error states */
+.state-loading .detail-value,
+.state-loading .score-value {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.state-error .status-label {
+  color: #dc2626;
 }
