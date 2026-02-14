@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+bower_components/
+
+# Build output
+dist/
+build/
+out/
+*.crx
+*.pem
+*.zip
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment & local config
+.env
+.env.*
+CLAUDE.md
+
+# Testing
+coverage/
+.nyc_output/
+
+# Packed extensions
+web-ext-artifacts/

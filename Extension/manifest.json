@@ -1,0 +1,24 @@
+{
+  "name": "BrowseShield",
+  "description": "Browse Shield is an online security tool enabling users to make informed decisions about their online habits",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "icons": {
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "action": {
+    "default_popup": "pages/popup.html",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "48": "images/icon-48.png"
+    }
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "permissions": [
+    "storage"
+  ]
+}
