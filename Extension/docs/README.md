@@ -16,6 +16,7 @@ Extension/
 ├── jsconfig.json          # JS intellisense config
 ├── scripts/
 │   ├── background.js      # Service worker - background logic, API calls
+│   ├── content.js         # Content script - DOM scanning, page analysis
 │   └── popup.js           # Popup UI logic
 ├── pages/
 │   ├── popup.html         # Extension toolbar popup
@@ -35,6 +36,7 @@ Extension/
 |------|---------|
 | `manifest.json` | Permissions, scripts, metadata |
 | `scripts/background.js` | Service worker - events, API calls |
+| `scripts/content.js` | DOM scanning, sends results to service worker |
 | `scripts/popup.js` | Popup interaction logic |
 | `pages/popup.html` | Extension icon click UI |
 
@@ -59,13 +61,13 @@ Planned additions as features land:
 
 ## Extension Contexts
 
-| Context | DOM Access | Persistent | Use For |
-|---------|------------|------------|---------|
-| Service Worker | No | Yes | API calls, events |
-| Content Script | Yes | No | Page analysis |
-| Popup | Own only | No | User interaction |
+| Context | DOM Access | Chrome APIs | Fetch/CORS | Use For |
+|---------|------------|-------------|------------|---------|
+| Service Worker | No | Full | Extension's `host_permissions` | API calls, events, orchestration |
+| Content Script | Yes | `runtime`, `storage` only | Page's CORS policy | DOM scanning, page analysis |
+| Popup | Own only | Full | Extension's `host_permissions` | User interaction |
 
-Communication: `chrome.runtime.sendMessage()`
+**Data flow:** Content script scans DOM → sends results to service worker via `chrome.runtime.sendMessage()` → service worker handles API calls and Chrome API logic → can message back to content script or update popup
 
 ---
 
