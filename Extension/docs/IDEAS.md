@@ -1,0 +1,1 @@
+Option to block JS/Scripting on insecure websites

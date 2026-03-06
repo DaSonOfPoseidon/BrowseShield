@@ -1,0 +1,296 @@
+const $ = (id) => document.getElementById(id);
+
+// ── Safety color palettes ──
+
+const COLORS = {
+  safe:       { ring: "#34c759", muted: "#b4e6c2", star: "#34c759", starMuted: "#b4e6c2" },
+  suspicious: { ring: "#f5a623", muted: "#f5d89a", star: "#f5a623", starMuted: "#f5d89a" },
+  unsafe:     { ring: "#e5383b", muted: "#f5b0b1", star: "#e5383b", starMuted: "#f5b0b1" },
+};
+
+const STAR_RATINGS = { safe: 5, suspicious: 3, unsafe: 1 };
+
+// ── Init ──
+
+async function init() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs[0];
+  if (!tab?.id) {
+    showError("No active tab");
+    return;
+  }
+
+  document.body.classList.add("state-loading");
+
+  // Show URL immediately
+  if (tab.url) {
+    renderUrl(tab.url);
+  }
+
+  // Render default ring (no data yet)
+  renderProgressRing(0, "#d4d4dc");
+  renderStars(0, "#d4d4dc", "#f0f0f2");
+
+  const [authState, scanResponse] = await Promise.all([
+    sendMessage({ type: "GET_AUTH_STATE" }),
+    sendMessage({ type: "GET_SCAN", tabId: tab.id }),
+  ]);
+
+  document.body.classList.remove("state-loading");
+
+  setupAuth(authState?.authenticated ?? false);
+
+  if (!scanResponse?.data) {
+    showStatus("No data yet");
+    return;
+  }
+
+  const entry = scanResponse.data;
+
+  // Update URL from scan data if available
+  if (entry.scan?.url) {
+    renderUrl(entry.scan.url);
+  }
+
+  if (entry.assessment) {
+    renderAssessment(entry.assessment);
+  } else {
+    const status = deriveStatus(entry.scan.meta, entry.scan.forms, entry.scan.links);
+    const confidence = deriveConfidence(status);
+    applyStatus(status, confidence);
+  }
+}
+
+// ── Message passing ──
+
+function sendMessage(msg) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(msg, (response) => {
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        return;
+      }
+      resolve(response);
+    });
+  });
+}
+
+// ── Auth UI ──
+
+let authListenersAttached = false;
+
+function setupAuth(authenticated) {
+  const btnSignIn = $("btn-sign-in");
+  const btnSignOut = $("btn-sign-out");
+  const loginSection = $("login-section");
+
+  btnSignIn.hidden = authenticated;
+  btnSignOut.hidden = !authenticated;
+
+  if (authListenersAttached) return;
+  authListenersAttached = true;
+
+  btnSignIn.addEventListener("click", () => {
+    loginSection.hidden = !loginSection.hidden;
+  });
+
+  btnSignOut.addEventListener("click", async () => {
+    const result = await sendMessage({ type: "LOGOUT" });
+    if (result?.success) {
+      window.close();
+    }
+  });
+
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("login-email").value;
+    const password = $("login-password").value;
+    const errorEl = $("login-error");
+    errorEl.hidden = true;
+
+    const result = await sendMessage({ type: "LOGIN", email, password });
+    if (result?.success) {
+      loginSection.hidden = true;
+      btnSignIn.hidden = true;
+      btnSignOut.hidden = false;
+      init();
+    } else {
+      errorEl.textContent = result?.error ?? "Login failed";
+      errorEl.hidden = false;
+    }
+  });
+}
+
+// ── URL pill ──
+
+function renderUrl(url) {
+  const el = $("site-url");
+  try {
+    const parsed = new URL(url);
+    el.textContent = parsed.hostname + parsed.pathname.replace(/\/$/, "");
+  } catch {
+    el.textContent = url;
+  }
+  el.title = url;
+}
+
+// ── Progress ring ──
+
+function renderProgressRing(percentage, color) {
+  const wrapper = $("progress-ring-wrapper");
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "ring-svg");
+  svg.setAttribute("viewBox", "0 0 110 110");
+
+  // Background track
+  const track = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  track.setAttribute("class", "ring-track");
+  track.setAttribute("cx", "55");
+  track.setAttribute("cy", "55");
+  track.setAttribute("r", String(radius));
+
+  // Progress arc
+  const progress = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  progress.setAttribute("class", "ring-progress");
+  progress.setAttribute("cx", "55");
+  progress.setAttribute("cy", "55");
+  progress.setAttribute("r", String(radius));
+  progress.setAttribute("stroke", color);
+  progress.setAttribute("stroke-dasharray", String(circumference));
+  // Start fully hidden, then animate
+  progress.setAttribute("stroke-dashoffset", String(circumference));
+
+  // Percentage text
+  const valueText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  valueText.setAttribute("class", "ring-value");
+  valueText.setAttribute("x", "55");
+  valueText.setAttribute("y", "50");
+  valueText.setAttribute("text-anchor", "middle");
+  valueText.setAttribute("dominant-baseline", "central");
+  valueText.textContent = percentage > 0 ? `${percentage}%` : "--";
+
+  // "Confidence" label
+  const labelText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  labelText.setAttribute("class", "ring-label");
+  labelText.setAttribute("x", "55");
+  labelText.setAttribute("y", "72");
+  labelText.setAttribute("text-anchor", "middle");
+  labelText.textContent = "Confidence";
+
+  svg.append(track, progress, valueText, labelText);
+  wrapper.replaceChildren(svg);
+
+  // Trigger animation after paint
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      progress.setAttribute("stroke-dashoffset", String(offset));
+    });
+  });
+}
+
+// ── Star rating ──
+
+function renderStars(rating, color, mutedColor) {
+  const wrapper = $("stars-wrapper");
+  wrapper.replaceChildren();
+
+  for (let i = 1; i <= 5; i++) {
+    const filled = i <= rating;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "star-icon");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", filled ? mutedColor : "none");
+    svg.setAttribute("stroke", filled ? color : "#d4d4dc");
+    svg.setAttribute("stroke-width", "1.8");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z");
+    svg.appendChild(path);
+    wrapper.appendChild(svg);
+  }
+}
+
+// ── Reasons list ──
+
+function renderReasons(reasons) {
+  if (!reasons?.length) return;
+
+  const list = $("reasons-list");
+  list.replaceChildren();
+  for (const reason of reasons) {
+    const li = document.createElement("li");
+    li.textContent = reason;
+    list.appendChild(li);
+  }
+  $("reasons-section").hidden = false;
+}
+
+// ── Render API assessment ──
+
+function renderAssessment(assessment) {
+  const status = assessment.safety;
+  const confidence = assessment.confidence ?? 0;
+  const palette = COLORS[status] ?? COLORS.safe;
+  const stars = STAR_RATINGS[status] ?? 3;
+
+  document.querySelector(".popup-card").classList.add(`status-${status}`);
+  renderProgressRing(confidence, palette.ring);
+  renderStars(stars, palette.star, palette.starMuted);
+  renderReasons(assessment.reasons);
+}
+
+// ── Status helpers ──
+
+function applyStatus(status, confidence) {
+  const palette = COLORS[status] ?? COLORS.safe;
+  const stars = STAR_RATINGS[status] ?? 3;
+
+  document.querySelector(".popup-card").classList.add(`status-${status}`);
+  renderProgressRing(confidence, palette.ring);
+  renderStars(stars, palette.star, palette.starMuted);
+}
+
+function deriveStatus(meta, forms, links) {
+  const isHttps = meta?.isHttps ?? false;
+  const hasPassword = Array.isArray(forms) && forms.some((f) => f.hasPasswordField);
+  const formCount = Array.isArray(forms) ? forms.length : 0;
+
+  if (!isHttps && hasPassword) return "unsafe";
+  if (!isHttps) return "suspicious";
+  if (hasPassword || formCount > 3) return "suspicious";
+  return "safe";
+}
+
+function deriveConfidence(status) {
+  const map = { safe: 85, suspicious: 50, unsafe: 20 };
+  return map[status] ?? 50;
+}
+
+// ── Status / error messages ──
+
+function showStatus(text) {
+  document.querySelectorAll(".status-message").forEach((el) => el.remove());
+  const wrapper = $("progress-ring-wrapper");
+  const msg = document.createElement("p");
+  msg.className = "status-message";
+  msg.textContent = text;
+  wrapper.after(msg);
+}
+
+function showError(msg) {
+  document.querySelectorAll(".status-message").forEach((el) => el.remove());
+  renderProgressRing(0, "#e5383b");
+  const wrapper = $("progress-ring-wrapper");
+  const el = document.createElement("p");
+  el.className = "status-message error";
+  el.textContent = msg;
+  wrapper.after(el);
+}
+
+init();

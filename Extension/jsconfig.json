@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "types": ["chrome-types"]
+  },
+  "include": ["scripts/**/*.js", "*.js"],
+  "exclude": ["node_modules"]
+}
