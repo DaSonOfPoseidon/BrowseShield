@@ -23,15 +23,19 @@ export async function getToken() {
   return result.auth_token ?? null;
 }
 
-export async function saveToken(token) {
-  await chrome.storage.local.set({ auth_token: token });
+export async function saveToken(data) {
+  await chrome.storage.local.set({
+    auth_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: Date.now() + (data.expires_in * 1000),
+  });
 }
 
 export async function clearToken() {
-  await chrome.storage.local.remove("auth_token");
+  await chrome.storage.local.remove(["auth_token", "refresh_token", "expires_at"]);
 }
 
-// --- Base request ---
+// --- URL validation ---
 
 export function validateBaseUrl(url) {
   try {
@@ -45,8 +49,60 @@ export function validateBaseUrl(url) {
   }
 }
 
-export async function request(method, path, body) {
+// --- Constants ---
+
+const REQUEST_TIMEOUT_MS = 15000;
+const REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
+
+// --- Token refresh ---
+
+async function isTokenExpiringSoon() {
+  const { expires_at } = await chrome.storage.local.get("expires_at");
+  if (!expires_at) return false;
+  return Date.now() >= expires_at - REFRESH_BUFFER_MS;
+}
+
+export async function refreshAccessToken() {
+  const { refresh_token } = await chrome.storage.local.get("refresh_token");
+  if (!refresh_token) throw new ApiError("No refresh token", 401);
+
   validateBaseUrl(API_BASE);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${API_BASE}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new ApiError("Token refresh failed", response.status);
+    }
+
+    const data = await response.json();
+    await saveToken(data);
+    return data;
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e instanceof ApiError) throw e;
+    if (e.name === "AbortError") throw new ApiError("Token refresh timed out", 0);
+    throw e;
+  }
+}
+
+// --- Base request ---
+
+export async function request(method, path, body, _retried = false) {
+  validateBaseUrl(API_BASE);
+
+  // Auto-refresh if token is near expiry
+  if (!_retried && await isTokenExpiringSoon()) {
+    try { await refreshAccessToken(); } catch { /* proceed with current token */ }
+  }
 
   const token = await getToken();
   const headers = { "Content-Type": "application/json" };
@@ -59,7 +115,29 @@ export async function request(method, path, body) {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE}${path}`, options);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  options.signal = controller.signal;
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, options);
+    clearTimeout(timeout);
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e.name === "AbortError") throw new ApiError("Request timed out", 0);
+    throw e;
+  }
+
+  // 401 retry: attempt refresh once, then retry the request
+  if (response.status === 401 && !_retried) {
+    try {
+      await refreshAccessToken();
+      return request(method, path, body, true);
+    } catch {
+      // refresh failed — fall through to throw below
+    }
+  }
 
   if (!response.ok) {
     let errorMessage = response.statusText;
@@ -96,16 +174,40 @@ const STUBS = {
   },
 };
 
+// --- Response validators ---
+
+function validateLoginResponse(data) {
+  if (typeof data.access_token !== "string" || !data.access_token) {
+    throw new ApiError("Invalid login response: missing access_token", 0);
+  }
+  if (typeof data.expires_in !== "number" || data.expires_in <= 0) {
+    throw new ApiError("Invalid login response: missing expires_in", 0);
+  }
+  return data;
+}
+
+function validateAssessResponse(data) {
+  if (!["safe", "unsafe", "suspicious"].includes(data.safety)) {
+    throw new ApiError("Invalid safety value in response", 0);
+  }
+  if (typeof data.confidence !== "number" || data.confidence < 0 || data.confidence > 100) {
+    throw new ApiError("Invalid confidence value in response", 0);
+  }
+  return data;
+}
+
 // --- Endpoint functions ---
 
 export async function login(email, password) {
   if (USE_STUBS) {
     const data = { ...STUBS.login, user: { ...STUBS.login.user, email } };
-    await saveToken(data.access_token);
+    validateLoginResponse(data);
+    await saveToken(data);
     return data;
   }
   const data = await request("POST", "/auth/login", { email, password });
-  await saveToken(data.access_token);
+  validateLoginResponse(data);
+  await saveToken(data);
   return data;
 }
 
@@ -124,12 +226,19 @@ export async function logout() {
 
 export async function assessUrl(url, scanData) {
   if (USE_STUBS) {
-    return { ...STUBS.assess, assessed_at: new Date().toISOString() };
+    const result = { ...STUBS.assess, assessed_at: new Date().toISOString() };
+    validateAssessResponse(result);
+    return result;
   }
-  return request("POST", "/assess", { url, scan_data: scanData });
+  const data = await request("POST", "/assess", { url, scan_data: scanData });
+  validateAssessResponse(data);
+  return data;
 }
 
 export async function isAuthenticated() {
   const token = await getToken();
-  return token !== null;
+  if (token === null) return false;
+  const { expires_at } = await chrome.storage.local.get("expires_at");
+  if (expires_at && Date.now() >= expires_at) return false;
+  return true;
 }
