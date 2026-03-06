@@ -1,0 +1,9 @@
+.git
+.github
+Extension/
+Detection/
+ML/
+Data/
+docs/
+.env
+node_modules

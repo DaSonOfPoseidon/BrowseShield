@@ -1,4 +1,9 @@
+import os
+
+
 class Config:
-    SECRET_KEY = 'madjbrowseshieldcapstone2026'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///browseshield.db'
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-fallback-key')
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL', 'sqlite:///browseshield.db'
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
