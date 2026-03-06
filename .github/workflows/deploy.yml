@@ -19,7 +19,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-            APP_DIR="/opt/browseshield"
+            APP_DIR="/opt/BrowseShield"
 
             if [ ! -d "$APP_DIR" ]; then
               git clone https://github.com/DaSonOfPoseidon/BrowseShield.git "$APP_DIR"
