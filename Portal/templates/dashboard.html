@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BrowseShield Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #0f172a;
+            color: white;
+            margin: 0;
+        }
+        .topbar {
+            width: 100%;
+            padding: 20px;
+            background-color: #000000;
+            box-sizing: border-box;
+            text-align: right;
+        }
+        .logout-btn {
+            background-color: #ef4444;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .logout-btn:hover {
+            opacity: 0.85;
+        }
+        .container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <p>Welcome to BrowseShield</p>
+        <p>Logged in as: {{ email }}</p>
+    </div>
+</body>
+</html>
