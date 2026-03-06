@@ -14,6 +14,7 @@ build/
 # Environment
 .env
 .env.*
+!.env.example
 
 # IDE / Editor
 .vscode/
@@ -29,3 +30,7 @@ Thumbs.db
 # Project-specific
 .serena/
 CLAUDE.md
+
+# Database
+instance/
+*.db
