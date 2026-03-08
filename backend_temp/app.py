@@ -31,18 +31,18 @@ References:
 """
 
 from flask import Flask
-from backend.db.connection import initialize_db
-from backend.routes.scan import scan_blueprint
+from backend.db.connection import initialize_pool
+from backend.routes.scan import scan_bp
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object("backend.config.Config")
 
     # Initialize database
-    initialize_db(app)
+    initialize_pool(app)
 
     # Register routes
-    app.register_blueprint(scan_blueprint, url_prefix="/api")
+    app.register_blueprint(scan_bp, url_prefix="/api")
 
     return app
 
