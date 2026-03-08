@@ -8,10 +8,14 @@ from flask import Blueprint, request, jsonify
 
 from backend.services.feature_extractor import extract_features
 from backend.services.risk_engine import evaluate_risk
+
 from backend.db.connection import get_db_connection
+from backend.db.queries import (
+    INSERT_ANALYSIS_REQUEST,
+    INSERT_FEATURE,
+    INSERT_DETECTION_RESULT
+)
 
-
-# Blueprint definition
 scan_bp = Blueprint("scan", __name__)
 
 
@@ -24,55 +28,46 @@ def scan_url():
     data = request.get_json()
 
     if not data or "url" not in data:
-        return jsonify({"error": "URL is required"}), 400
+        return jsonify({"error": "URL required"}), 400
 
     url = data["url"]
 
-    # Run feature extraction
+    # Extract phishing features
     features = extract_features(url)
 
-    # Run risk scoring
+    # Evaluate risk
     result = evaluate_risk(features)
 
-    # Save results to database
     try:
         with get_db_connection() as conn:
+
             cursor = conn.cursor()
 
+            # Insert request
             cursor.execute(
-                """
-                INSERT INTO analysis_requests (url, source)
-                VALUES (%s, %s)
-                RETURNING id;
-                """,
-                (url, "api_test")
+                INSERT_ANALYSIS_REQUEST,
+                (url, "api")
             )
 
             analysis_id = cursor.fetchone()[0]
 
+            # Insert extracted features
             for feature_name, value in features.items():
                 cursor.execute(
-                    """
-                    INSERT INTO extracted_features
-                    (analysis_id, feature_name, feature_value)
-                    VALUES (%s, %s, %s)
-                    """,
+                    INSERT_FEATURE,
                     (analysis_id, feature_name, value)
                 )
 
+            # Insert detection result
             cursor.execute(
-                """
-                INSERT INTO detection_results
-                (analysis_id, heuristic_score, ml_score, final_score, classification)
-                VALUES (%s, %s, %s, %s, %s)
-                """,
+                INSERT_DETECTION_RESULT,
                 (
                     analysis_id,
                     result["heuristic_score"],
                     result["ml_score"],
                     result["final_score"],
-                    result["classification"]
-                )
+                    result["classification"],
+                ),
             )
 
             conn.commit()
