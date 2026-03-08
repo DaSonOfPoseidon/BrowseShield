@@ -31,18 +31,21 @@ References:
 """
 
 from flask import Flask
+
 from backend.db.connection import initialize_pool
 from backend.routes.scan import scan_bp
+from backend.routes.metrics import metrics_bp
+
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("backend.config.Config")
 
-    # Initialize database
-    initialize_pool(app)
+    # Initialize PostgreSQL pool
+    initialize_pool()
 
-    # Register routes
+    # Register API routes
     app.register_blueprint(scan_bp, url_prefix="/api")
+    app.register_blueprint(metrics_bp, url_prefix="/api")
 
     return app
 
