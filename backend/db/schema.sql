@@ -21,3 +21,7 @@ CREATE TABLE detection_results (
     classification TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_analysis_url ON analysis_requests(url);
+CREATE INDEX idx_feature_analysis ON extracted_features(analysis_id);
+CREATE INDEX idx_results_analysis ON detection_results(analysis_id);
