@@ -279,6 +279,75 @@ body {
   50% { opacity: 0.4; }
 }
 
+/* ── Email subject ── */
+.email-subject-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0 20px 4px;
+}
+
+.email-subject {
+  display: inline-block;
+  max-width: 280px;
+  font-size: 11px;
+  color: #9e9eab;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Suspicious links ── */
+.suspicious-links-section {
+  padding: 0 20px 12px;
+}
+
+.suspicious-links-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #6b6b7b;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.suspicious-links-toggle:hover {
+  background: #f3f3f6;
+}
+
+.suspicious-links-count {
+  font-size: 10.5px;
+  color: #9e9eab;
+}
+
+.suspicious-links-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.suspicious-links-list li {
+  font-size: 11.5px;
+  color: #e5383b;
+  padding: 3px 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+  transition: background 0.15s;
+}
+
+.suspicious-links-list li:hover {
+  background: #fef2f2;
+}
+
 /* ── No-data / error label ── */
 .status-message {
   text-align: center;

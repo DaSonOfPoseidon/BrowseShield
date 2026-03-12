@@ -9,6 +9,7 @@ const {
   login,
   logout,
   assessUrl,
+  assessEmail,
   isAuthenticated,
   getToken,
   saveToken,
@@ -126,6 +127,77 @@ describe("assessUrl (stub)", () => {
     const result = await assessUrl("https://example.com", {});
     expect(result.confidence).toBeGreaterThanOrEqual(0);
     expect(result.confidence).toBeLessThanOrEqual(100);
+  });
+});
+
+// --- assessEmail (stub) ---
+
+describe("assessEmail (stub)", () => {
+  it("returns correct response shape", async () => {
+    const result = await assessEmail({
+      sender: { name: "Test", address: "test@example.com" },
+      subject: "Verify your account",
+      bodyText: "Click here to verify...",
+      links: [{ href: "https://evil.com", displayText: "Verify" }],
+      attachments: ["doc.pdf"],
+    });
+
+    expect(result).toHaveProperty("safety");
+    expect(result).toHaveProperty("confidence");
+    expect(result).toHaveProperty("reasons");
+    expect(result).toHaveProperty("assessed_at");
+    expect(result).toHaveProperty("phishingIndicators");
+  });
+
+  it("returns valid safety value", async () => {
+    const result = await assessEmail({
+      sender: { name: "Test", address: "test@example.com" },
+      subject: "Test",
+      bodyText: "body",
+      links: [],
+      attachments: [],
+    });
+    expect(["safe", "unsafe", "suspicious"]).toContain(result.safety);
+  });
+
+  it("returns confidence between 0 and 100", async () => {
+    const result = await assessEmail({
+      sender: { name: "Test", address: "test@example.com" },
+      subject: "Test",
+      bodyText: "body",
+      links: [],
+      attachments: [],
+    });
+    expect(result.confidence).toBeGreaterThanOrEqual(0);
+    expect(result.confidence).toBeLessThanOrEqual(100);
+  });
+
+  it("returns phishing indicators object", async () => {
+    const result = await assessEmail({
+      sender: { name: "Test", address: "test@example.com" },
+      subject: "Test",
+      bodyText: "body",
+      links: [],
+      attachments: [],
+    });
+    expect(result.phishingIndicators).toHaveProperty("senderMismatch");
+    expect(result.phishingIndicators).toHaveProperty("suspiciousLinks");
+    expect(result.phishingIndicators).toHaveProperty("urgencyLanguage");
+    expect(result.phishingIndicators).toHaveProperty("suspiciousAttachments");
+  });
+
+  it("reasons is an array of strings", async () => {
+    const result = await assessEmail({
+      sender: { name: "Test", address: "test@example.com" },
+      subject: "Test",
+      bodyText: "body",
+      links: [],
+      attachments: [],
+    });
+    expect(Array.isArray(result.reasons)).toBe(true);
+    for (const reason of result.reasons) {
+      expect(typeof reason).toBe("string");
+    }
   });
 });
 

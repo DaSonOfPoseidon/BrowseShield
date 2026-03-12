@@ -172,6 +172,22 @@ const STUBS = {
     ],
     assessed_at: new Date().toISOString(),
   },
+  assessEmail: {
+    safety: "suspicious",
+    confidence: 65,
+    reasons: [
+      "Sender domain does not match display name",
+      "Email contains urgency language",
+      "Link text does not match destination URL",
+    ],
+    phishingIndicators: {
+      senderMismatch: true,
+      suspiciousLinks: ["https://evil-site.example.com/login"],
+      urgencyLanguage: true,
+      suspiciousAttachments: false,
+    },
+    assessed_at: new Date().toISOString(),
+  },
 };
 
 // --- Response validators ---
@@ -192,6 +208,14 @@ function validateAssessResponse(data) {
   }
   if (typeof data.confidence !== "number" || data.confidence < 0 || data.confidence > 100) {
     throw new ApiError("Invalid confidence value in response", 0);
+  }
+  return data;
+}
+
+function validateEmailAssessResponse(data) {
+  validateAssessResponse(data);
+  if (data.phishingIndicators && typeof data.phishingIndicators !== "object") {
+    throw new ApiError("Invalid phishingIndicators in response", 0);
   }
   return data;
 }
@@ -232,6 +256,23 @@ export async function assessUrl(url, scanData) {
   }
   const data = await request("POST", "/assess", { url, scan_data: scanData });
   validateAssessResponse(data);
+  return data;
+}
+
+export async function assessEmail(emailData) {
+  if (USE_STUBS) {
+    const result = { ...STUBS.assessEmail, assessed_at: new Date().toISOString() };
+    validateEmailAssessResponse(result);
+    return result;
+  }
+  const data = await request("POST", "/assess/email", {
+    sender: emailData.sender,
+    subject: emailData.subject,
+    body_text: emailData.bodyText,
+    links: emailData.links,
+    attachments: emailData.attachments,
+  });
+  validateEmailAssessResponse(data);
   return data;
 }
 

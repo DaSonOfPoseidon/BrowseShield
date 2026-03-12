@@ -49,8 +49,33 @@ function scanMeta() {
   return { isHttps, title };
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", scanPage);
-} else {
-  scanPage();
+function detectWebmail() {
+  const host = window.location.hostname;
+  // Skip known providers (they get the scanner via manifest matches)
+  if (host === "mail.google.com" || /outlook\.(office|live|office365)\.com/.test(host)) return;
+
+  const hasMailtoLinks = document.querySelectorAll('a[href^="mailto:"]').length > 0;
+  const hasEmailHeaders = !!document.body?.textContent.match(/\b(From|Subject|Inbox|Compose)\b/gi);
+  const hasMessageList = document.querySelectorAll('[role="listitem"], [role="row"]').length > 5;
+
+  if (hasMailtoLinks && hasEmailHeaders && hasMessageList) {
+    chrome.runtime.sendMessage({ type: "MAYBE_WEBMAIL", data: { url: window.location.href } });
+  }
+}
+
+// Export for testing (no-op in browser)
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { scanForms, scanLinks, scanMeta, detectWebmail, scanPage };
+}
+
+if (typeof module === "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      scanPage();
+      detectWebmail();
+    });
+  } else {
+    scanPage();
+    detectWebmail();
+  }
 }

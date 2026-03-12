@@ -22,7 +22,8 @@
   "permissions": [
     "activeTab",
     "storage",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "scripting"
   ],
   "host_permissions": [
     "https://api.browseshield.dev/*"
@@ -31,6 +32,16 @@
     {
       "js": ["scripts/content.js"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "js": ["scripts/email-scanner.js"],
+      "matches": [
+        "*://mail.google.com/*",
+        "*://outlook.office.com/*",
+        "*://outlook.live.com/*",
+        "*://outlook.office365.com/*"
+      ],
+      "run_at": "document_idle"
     }
   ]
 }

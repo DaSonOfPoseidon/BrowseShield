@@ -41,6 +41,9 @@ const chromeMock = {
     setBadgeBackgroundColor: () => {},
     setBadgeText: () => {},
   },
+  scripting: {
+    executeScript: () => Promise.resolve(),
+  },
 };
 
 export function installChromeMock() {

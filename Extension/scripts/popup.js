@@ -52,10 +52,15 @@ async function init() {
     renderUrl(entry.scan.url);
   }
 
-  if (entry.assessment) {
+  // Email mode: if an email assessment exists, show it instead of page assessment
+  if (entry.emailAssessment) {
+    renderEmailMode(entry);
+  } else if (entry.emailScan) {
+    renderEmailMode(entry);
+  } else if (entry.assessment) {
     renderAssessment(entry.assessment);
   } else {
-    const status = deriveStatus(entry.scan.meta, entry.scan.forms, entry.scan.links);
+    const status = deriveStatus(entry.scan?.meta, entry.scan?.forms, entry.scan?.links);
     const confidence = deriveConfidence(status);
     applyStatus(status, confidence);
   }
@@ -272,6 +277,70 @@ function deriveConfidence(status) {
   return map[status] ?? 50;
 }
 
+// ── Email mode rendering ──
+
+function renderEmailMode(entry) {
+  const emailScan = entry.emailScan;
+  const emailAssessment = entry.emailAssessment;
+
+  // Replace URL pill with sender info
+  const urlEl = $("site-url");
+  if (emailScan?.sender) {
+    const senderDisplay = emailScan.sender.name
+      ? `${emailScan.sender.name} <${emailScan.sender.address}>`
+      : emailScan.sender.address || "Unknown sender";
+    urlEl.textContent = senderDisplay;
+    urlEl.title = senderDisplay;
+  }
+
+  // Show subject line
+  if (emailScan?.subject) {
+    const subjectWrapper = $("email-subject-wrapper");
+    const subjectEl = $("email-subject");
+    subjectEl.textContent = emailScan.subject;
+    subjectWrapper.hidden = false;
+  }
+
+  // Render assessment or fallback
+  if (emailAssessment) {
+    renderAssessment(emailAssessment);
+
+    // Show suspicious links if present
+    const indicators = emailAssessment.phishingIndicators;
+    if (indicators?.suspiciousLinks?.length > 0) {
+      renderSuspiciousLinks(indicators.suspiciousLinks);
+    }
+  } else if (entry.emailLoading) {
+    // Still loading
+    document.body.classList.add("state-loading");
+  } else {
+    applyStatus("suspicious", 50);
+  }
+}
+
+function renderSuspiciousLinks(links) {
+  const section = $("suspicious-links-section");
+  const list = $("suspicious-links-list");
+  const countEl = $("suspicious-links-count");
+  const toggle = $("suspicious-links-toggle");
+
+  countEl.textContent = `(${links.length})`;
+  list.replaceChildren();
+
+  for (const link of links) {
+    const li = document.createElement("li");
+    li.textContent = typeof link === "string" ? link : link.href || String(link);
+    li.title = li.textContent;
+    list.appendChild(li);
+  }
+
+  section.hidden = false;
+
+  toggle.addEventListener("click", () => {
+    list.hidden = !list.hidden;
+  });
+}
+
 // ── Status / error messages ──
 
 function showStatus(text) {
@@ -293,4 +362,9 @@ function showError(msg) {
   wrapper.after(el);
 }
 
-init();
+// Export for testing (no-op in browser)
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { deriveStatus, deriveConfidence, renderUrl, renderEmailMode, setupAuth, init, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
+} else {
+  init();
+}
