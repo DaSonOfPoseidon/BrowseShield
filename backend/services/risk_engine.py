@@ -15,13 +15,12 @@ FEATURE_WEIGHTS = {
     "url_length": 0.15,
     "num_subdomains": 0.15,
     "has_ip_address": 0.20,
-    "https_present": -0.15,  # HTTPS reduces risk
+    "https_present": -0.15, # Negative because https reduces risk
     "suspicious_keywords": 0.15,
     "hyphen_count": 0.10,
     "encoding_count": 0.10,
     "suspicious_tld": 0.20
 }
-
 
 # -----------------------------
 # Classification Thresholds
@@ -30,22 +29,8 @@ FEATURE_WEIGHTS = {
 PHISHING_THRESHOLD = 0.75
 SUSPICIOUS_THRESHOLD = 0.40
 
-
 def calculate_heuristic_score(features: dict) -> float:
-    """
-    Calculates heuristic phishing score based on weighted features.
-
-    Parameters
-    ----------
-    features : dict
-        Extracted feature dictionary.
-
-    Returns
-    -------
-    float
-        Normalized phishing risk score between 0 and 1.
-    """
-
+    
     score = 0.0
 
     for feature, value in features.items():
@@ -75,11 +60,7 @@ def calculate_heuristic_score(features: dict) -> float:
 
     return score
 
-
 def classify_score(score: float) -> str:
-    """
-    Converts risk score into a classification.
-    """
 
     if score >= PHISHING_THRESHOLD:
         return "phishing"
@@ -89,13 +70,7 @@ def classify_score(score: float) -> str:
 
     return "safe"
 
-
 def evaluate_risk(features: dict) -> dict:
-    """
-    Full evaluation pipeline.
-
-    Returns risk score and classification.
-    """
 
     heuristic_score = calculate_heuristic_score(features)
 
@@ -103,7 +78,7 @@ def evaluate_risk(features: dict) -> dict:
 
     return {
         "heuristic_score": heuristic_score,
-        "ml_score": None,  # Placeholder for future ML model
+        "ml_score": None,  # Placeholder for the ML model
         "final_score": heuristic_score,
         "classification": classification
     }

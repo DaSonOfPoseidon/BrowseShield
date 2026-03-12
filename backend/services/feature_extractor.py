@@ -10,7 +10,6 @@ likelihood that a URL is associated with a phishing attack.
 import re
 from urllib.parse import urlparse
 
-
 SUSPICIOUS_KEYWORDS = [
     "login",
     "secure",
@@ -33,21 +32,7 @@ SUSPICIOUS_TLDS = [
     "ml"
 ]
 
-
 def extract_features(url: str) -> dict:
-    """
-    Extract phishing-related features from a URL.
-
-    Parameters
-    ----------
-    url : str
-        The URL to analyze.
-
-    Returns
-    -------
-    dict
-        Dictionary of extracted features.
-    """
 
     parsed = urlparse(url)
     domain = parsed.netloc.lower()
@@ -65,16 +50,13 @@ def extract_features(url: str) -> dict:
 
     return features
 
-
 # -----------------------------
 # Individual Feature Functions
 # -----------------------------
 
-
 def get_url_length(url: str) -> int:
     """Return total URL length."""
     return len(url)
-
 
 def count_subdomains(domain: str) -> int:
     """Return number of subdomains."""
@@ -82,7 +64,6 @@ def count_subdomains(domain: str) -> int:
     if len(parts) <= 2:
         return 0
     return len(parts) - 2
-
 
 def has_ip(domain: str) -> int:
     """
@@ -92,11 +73,9 @@ def has_ip(domain: str) -> int:
     ip_pattern = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
     return 1 if re.match(ip_pattern, domain) else 0
 
-
 def uses_https(parsed_url) -> int:
     """Return 1 if HTTPS is used, else 0."""
     return 1 if parsed_url.scheme == "https" else 0
-
 
 def count_suspicious_keywords(url: str) -> int:
     """Count suspicious phishing keywords in URL."""
@@ -109,16 +88,13 @@ def count_suspicious_keywords(url: str) -> int:
 
     return count
 
-
 def count_hyphens(domain: str) -> int:
     """Count hyphens in the domain."""
     return domain.count("-")
 
-
 def count_url_encoding(url: str) -> int:
     """Count encoded characters like %20."""
     return url.count("%")
-
 
 def has_suspicious_tld(domain: str) -> int:
     """Return 1 if domain ends with suspicious TLD."""
