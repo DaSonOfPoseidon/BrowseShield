@@ -15,11 +15,13 @@ from Backend.db.queries import (
     INSERT_FEATURE,
     INSERT_DETECTION_RESULT,
 )
+from Backend.utils.auth import jwt_required
 
 assess_bp = Blueprint("assess", __name__)
 
 
 @assess_bp.route("/assess", methods=["POST"])
+@jwt_required
 def assess_url():
     data = request.get_json()
 
@@ -72,6 +74,7 @@ def assess_url():
 
 
 @assess_bp.route("/assess/email", methods=["POST"])
+@jwt_required
 def assess_email():
     data = request.get_json()
 

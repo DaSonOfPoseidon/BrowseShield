@@ -37,6 +37,6 @@ jobs:
 
             sleep 15
             curl -sf http://localhost:3000/ > /dev/null || { echo "Portal failed"; docker compose logs portal; exit 1; }
-            curl -sf http://localhost:8000/api/ > /dev/null || echo "WARNING: Backend /api/ returned non-200"
+            curl -sf http://localhost:8000/v1/metrics > /dev/null || echo "WARNING: Backend /v1/metrics returned non-200"
 
             docker image prune -f

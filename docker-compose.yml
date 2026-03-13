@@ -9,6 +9,9 @@ services:
       - portal_data:/app/Portal/instance
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build: ./Backend

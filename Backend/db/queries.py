@@ -45,3 +45,32 @@ SELECT COUNT(*)
 FROM detection_results
 WHERE classification = 'safe';
 """
+
+# ---------------------------
+# AUTH QUERIES
+# ---------------------------
+
+GET_USER_BY_EMAIL = """
+SELECT id, email, password, name FROM users WHERE email = %s;
+"""
+
+GET_USER_BY_ID = """
+SELECT id, email, name FROM users WHERE id = %s;
+"""
+
+INSERT_REFRESH_TOKEN = """
+INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+VALUES (%s, %s, %s);
+"""
+
+GET_REFRESH_TOKEN = """
+SELECT id, user_id, expires_at FROM refresh_tokens WHERE token_hash = %s;
+"""
+
+DELETE_REFRESH_TOKEN = """
+DELETE FROM refresh_tokens WHERE token_hash = %s;
+"""
+
+DELETE_USER_REFRESH_TOKENS = """
+DELETE FROM refresh_tokens WHERE user_id = %s;
+"""

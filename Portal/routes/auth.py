@@ -16,7 +16,7 @@ def register():
             flash("Email already exists")
             return redirect(url_for("auth.register"))
         
-        hashed_password = bcrypt.generate_password_hash(password)
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         
         new_user = User(
             email=email,
