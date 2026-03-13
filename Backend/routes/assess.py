@@ -1,8 +1,10 @@
 """
-scan.py
+assess.py
 -------
-API endpoint for analyzing URLs using the BrowseShield detection engine.
+API endpoints for analyzing URLs and emails using the BrowseShield detection engine.
 """
+
+from datetime import datetime, timezone
 
 from flask import Blueprint, request, jsonify
 
@@ -14,11 +16,11 @@ from Backend.db.queries import (
     INSERT_DETECTION_RESULT,
 )
 
-scan_bp = Blueprint("scan", __name__)
+assess_bp = Blueprint("assess", __name__)
 
 
-@scan_bp.route("/scan", methods=["POST"])
-def scan_url():
+@assess_bp.route("/assess", methods=["POST"])
+def assess_url():
     data = request.get_json()
 
     if not data or "url" not in data:
@@ -67,3 +69,20 @@ def scan_url():
         return jsonify({"error": str(e)}), 500
 
     return jsonify(result)
+
+
+@assess_bp.route("/assess/email", methods=["POST"])
+def assess_email():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "validation_error", "message": "Request body required"}), 400
+
+    # TODO: Mike — add email processing logic
+    return jsonify({
+        "safety": "suspicious",
+        "confidence": 50,
+        "reasons": ["Email analysis not yet implemented"],
+        "phishingIndicators": {},
+        "assessed_at": datetime.now(timezone.utc).isoformat(),
+    })
