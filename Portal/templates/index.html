@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BrowseShield Homepage</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #0f172a;
+            color: white;
+            text-align: center;
+            padding-top: 100px;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+        }
+        .register {
+            background-color: #1F7F8A;
+        }
+        .login {
+            background-color: #2E9CAB;
+        }
+        .btn:hover {
+            opacity: 0.85;
+        }
+        img {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='logo.png') }}" width="120">
+    <h1>BrowseShield</h1>
+    <p>Phishing Detection and Awarness Website Portal</p>
+    <a href="/register" class="btn register">Create Account</a>
+    <a href="/login" class="btn login">Login</a>
+</body>
+</html>
