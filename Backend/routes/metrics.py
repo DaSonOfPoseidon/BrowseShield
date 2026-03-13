@@ -10,11 +10,13 @@ from Backend.db.queries import (
     COUNT_PHISHING,
     COUNT_SAFE,
 )
+from Backend.utils.auth import jwt_required
 
 metrics_bp = Blueprint("metrics", __name__)
 
 
 @metrics_bp.route("/metrics", methods=["GET"])
+@jwt_required
 def metrics():
     try:
         with get_db_connection() as conn:

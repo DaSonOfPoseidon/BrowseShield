@@ -78,6 +78,7 @@ async function handlePageScan(tabId, scanData) {
       forms: scanData.forms,
       links: scanData.links,
       meta: scanData.meta,
+      security: scanData.security,
     });
     entry.assessment = result;
   } catch (err) {

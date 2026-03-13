@@ -1,10 +1,29 @@
 // BrowseShield API Client
 // All backend communication goes through this module.
 
-const API_BASE = "https://api.browseshield.dev/v1";
+const DEFAULT_API_BASE = "https://api.browseshield.dev/v1";
 
 // When true, endpoint functions return mock data instead of making real requests.
-const USE_STUBS = true;
+const USE_STUBS = false;
+
+// Resolved at call time — use getApiBase() instead of API_BASE directly.
+let _cachedApiBase = null;
+
+async function getApiBase() {
+  if (_cachedApiBase) return _cachedApiBase;
+  try {
+    const { api_base_url } = await chrome.storage.local.get("api_base_url");
+    _cachedApiBase = api_base_url || DEFAULT_API_BASE;
+  } catch {
+    _cachedApiBase = DEFAULT_API_BASE;
+  }
+  return _cachedApiBase;
+}
+
+// Allow re-reading storage (e.g. after settings change)
+export function clearApiBaseCache() {
+  _cachedApiBase = null;
+}
 
 // --- ApiError ---
 
@@ -66,12 +85,13 @@ export async function refreshAccessToken() {
   const { refresh_token } = await chrome.storage.local.get("refresh_token");
   if (!refresh_token) throw new ApiError("No refresh token", 401);
 
-  validateBaseUrl(API_BASE);
+  const apiBase = await getApiBase();
+  validateBaseUrl(apiBase);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${API_BASE}/auth/refresh`, {
+    const response = await fetch(`${apiBase}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token }),
@@ -97,7 +117,8 @@ export async function refreshAccessToken() {
 // --- Base request ---
 
 export async function request(method, path, body, _retried = false) {
-  validateBaseUrl(API_BASE);
+  const apiBase = await getApiBase();
+  validateBaseUrl(apiBase);
 
   // Auto-refresh if token is near expiry
   if (!_retried && await isTokenExpiringSoon()) {
@@ -121,7 +142,7 @@ export async function request(method, path, body, _retried = false) {
 
   let response;
   try {
-    response = await fetch(`${API_BASE}${path}`, options);
+    response = await fetch(`${apiBase}${path}`, options);
     clearTimeout(timeout);
   } catch (e) {
     clearTimeout(timeout);
@@ -241,7 +262,8 @@ export async function logout() {
     return { ...STUBS.logout };
   }
   try {
-    const data = await request("POST", "/auth/logout");
+    const { refresh_token } = await chrome.storage.local.get("refresh_token");
+    const data = await request("POST", "/auth/logout", { refresh_token });
     return data;
   } finally {
     await clearToken();

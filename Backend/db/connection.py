@@ -63,5 +63,8 @@ def get_db_connection():
     conn = get_connection()
     try:
         yield conn
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         release_connection(conn)

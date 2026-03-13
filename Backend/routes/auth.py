@@ -35,7 +35,7 @@ def login():
     if not data or "email" not in data or "password" not in data:
         return jsonify({"error": "validation_error", "message": "Email and password required"}), 400
 
-    email = data["email"]
+    email = data["email"].strip().lower()
     password = data["password"]
 
     try:
