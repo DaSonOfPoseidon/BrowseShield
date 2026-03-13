@@ -28,19 +28,23 @@
             color: white;
         }
         .register {
-            background-color: #22c55e;
+            background-color: #1F7F8A;
         }
         .login {
-            background-color: #3b82f6;
+            background-color: #2E9CAB;
         }
         .btn:hover {
             opacity: 0.85;
         }
+        img {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+    <img src="{{ url_for('static', filename='logo.png') }}" width="120">
     <h1>BrowseShield</h1>
-    <p>Phishing Detection and Awareness Website Portal</p>
+    <p>Phishing Detection and Awarness Website Portal</p>
     <a href="/register" class="btn register">Create Account</a>
     <a href="/login" class="btn login">Login</a>
 </body>

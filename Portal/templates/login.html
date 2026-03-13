@@ -45,7 +45,7 @@
             border: none;
             text-decoration: none;
             color: white;
-            background-color: #3b82f6;
+            background-color: #1F7F8A;
             cursor: pointer;
         }
         .btn:hover {
@@ -54,15 +54,19 @@
         .register-link {
             display: block;
             margin-top: 20px;
-            color: #22c55e;
+            color: #7BC4C8;
             text-decoration: none;
         }
         .register-link:hover {
             opacity: 0.85;
         }
+        img {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+    <img src="{{ url_for('static', filename='logo.png') }}" width="110">
     <h1>BrowseShield</h1>
     <p>Login to your account</p>
     <div class="form-container">
