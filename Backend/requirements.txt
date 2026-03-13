@@ -1,4 +1,5 @@
 Flask
-flask-sqlalchemy
 psycopg2-binary
 python-dotenv
+PyJWT
+bcrypt

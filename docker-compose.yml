@@ -9,6 +9,9 @@ services:
       - portal_data:/app/Portal/instance
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build: ./Backend
@@ -28,6 +31,7 @@ services:
     restart: unless-stopped
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./Data:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}

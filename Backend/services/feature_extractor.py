@@ -1,5 +1,0 @@
-"""
-feature_extractor.py
------------
-
-"""

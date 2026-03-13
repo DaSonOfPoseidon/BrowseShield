@@ -241,3 +241,34 @@ describe("tab removal", () => {
     expect(response.data).toBeNull();
   });
 });
+
+describe("handlePageScan error handling", () => {
+  it("stores error message when assessUrl throws", async () => {
+    api.isAuthenticated.mockResolvedValue(true);
+    api.assessUrl.mockRejectedValue(new Error("Network failure"));
+
+    sendMessage(
+      { type: "PAGE_SCAN", data: { url: "https://example.com", forms: [], links: { total: 0, external: 0 }, meta: { isHttps: true, title: "X" } } },
+      { tab: { id: 500 } }
+    );
+    await tick();
+
+    const response = await sendMessage({ type: "GET_SCAN", tabId: 500 });
+    expect(response.data.error).toBe("Network failure");
+    expect(response.data.assessment).toBeNull();
+  });
+
+  it("sets loading to false even when assessUrl throws", async () => {
+    api.isAuthenticated.mockResolvedValue(true);
+    api.assessUrl.mockRejectedValue(new Error("Timeout"));
+
+    sendMessage(
+      { type: "PAGE_SCAN", data: { url: "https://example.com", forms: [], links: { total: 0, external: 0 }, meta: { isHttps: true, title: "X" } } },
+      { tab: { id: 501 } }
+    );
+    await tick();
+
+    const response = await sendMessage({ type: "GET_SCAN", tabId: 501 });
+    expect(response.data.loading).toBe(false);
+  });
+});

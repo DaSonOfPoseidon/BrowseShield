@@ -50,8 +50,10 @@
         <img src="{{ url_for('static', filename='logo.png') }}" width="40" style="margin-right:10px;">
         <span style="font-size:20px; font-weight:bold;">BrowseShield</span>
         </div>
-        
-        <a href="/logout" class="logout-btn">Logout</a>
+      
+        <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="logout-btn" style="border:none;cursor:pointer;font-size:inherit;">Logout</button>
+        </form>
         
     </div>
     <div class="container">

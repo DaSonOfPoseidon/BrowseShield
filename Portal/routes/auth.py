@@ -16,7 +16,7 @@ def register():
             flash("Email already exists")
             return redirect(url_for("auth.register"))
         
-        hashed_password = bcrypt.generate_password_hash(password)
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         
         new_user = User(
             email=email,
@@ -42,7 +42,7 @@ def login():
             return redirect("/login")
     return render_template("login.html")
 
-@auth.route("/logout")
+@auth.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()

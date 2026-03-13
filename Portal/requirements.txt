@@ -2,3 +2,4 @@ Flask
 Flask-Login
 Flask-Bcrypt
 Flask-SQLAlchemy
+psycopg2-binary
