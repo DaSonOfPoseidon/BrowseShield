@@ -17,7 +17,7 @@ Important Design Notes:
 - Live phishing detection logic resides in the services layer.
 - The extension communicates with this backend via JSON-based REST APIs.
 
-Author: Michael McClanahan
+Backend Author: Michael McClanahan
 Project: BrowseShield (Capstone)
 
 References:
@@ -30,28 +30,50 @@ References:
 - https://scikit-learn.org/stable/modules/model_evaluation.html
 """
 
-from flask import Flask
+from flask import Flask, jsonify
+from dotenv import load_dotenv
 
-from backend.db.connection import initialize_pool
-from backend.routes.scan import scan_bp
-from backend.routes.metrics import metrics_bp
+from Backend.db.connection import initialize_pool
+from Backend.routes.scan import scan_bp
+from Backend.routes.metrics import metrics_bp
+
+load_dotenv()
 
 
 def create_app():
+    """
+    Application factory for the BrowseShield backend.
+    """
+
     app = Flask(__name__)
 
-    # Initialize PostgreSQL pool
+    # Configure Flask settings
+    app.config["JSON_SORT_KEYS"] = False
+
+    # Initialize PostgreSQL connection pool
     initialize_pool()
 
     # Register API routes
     app.register_blueprint(scan_bp, url_prefix="/api")
     app.register_blueprint(metrics_bp, url_prefix="/api")
 
+    # Simple health check endpoint
+    @app.route("/health", methods=["GET"])
+    def health():
+        return jsonify({
+            "status": "ok",
+            "service": "BrowseShield Backend"
+        })
+
     return app
 
 
 if __name__ == "__main__":
+
     app = create_app()
-    app.run(debug=True)
 
-
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
