@@ -85,6 +85,7 @@ async function handlePageScan(tabId, scanData) {
     entry.error = err.message;
   } finally {
     entry.loading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
   }
 }
 
@@ -113,6 +114,7 @@ async function handleEmailScan(tabId, emailData) {
     entry.emailError = err.message;
   } finally {
     entry.emailLoading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
   }
 }
 

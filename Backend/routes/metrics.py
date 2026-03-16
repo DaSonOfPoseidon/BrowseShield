@@ -9,6 +9,8 @@ from Backend.db.queries import (
     COUNT_TOTAL_SCANS,
     COUNT_PHISHING,
     COUNT_SAFE,
+    COUNT_SUSPICIOUS,
+    AVERAGE_RISK_SCORE,
 )
 from Backend.utils.auth import jwt_required
 
@@ -31,6 +33,12 @@ def metrics():
             cursor.execute(COUNT_SAFE)
             safe_detected = cursor.fetchone()[0]
 
+            cursor.execute(COUNT_SUSPICIOUS)
+            suspicious_detected = cursor.fetchone()[0]
+
+            cursor.execute(AVERAGE_RISK_SCORE)
+            avg_risk_score = cursor.fetchone()[0]
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -38,4 +46,6 @@ def metrics():
         "total_scans": total_scans,
         "phishing_detected": phishing_detected,
         "safe_detected": safe_detected,
+        "suspicious_detected": suspicious_detected,
+        "average_risk_score": round(avg_risk_score, 4) if avg_risk_score else 0,
     })

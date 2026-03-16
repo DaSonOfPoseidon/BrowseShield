@@ -12,10 +12,16 @@ from Backend.routes.metrics import metrics_bp
 
 
 def create_app():
+    """
+    Application factory for the BrowseShield backend.
+    """
+
     app = Flask(__name__)
     app.config.from_object(Config)
 
     initialize_pool()
+
+    import ML.model_loader  # noqa: F401 — loads ML model at startup
 
     app.register_blueprint(auth_bp, url_prefix="/v1")
     app.register_blueprint(assess_bp, url_prefix="/v1")
@@ -25,5 +31,6 @@ def create_app():
 
 
 if __name__ == "__main__":
+
     app = create_app()
     app.run(debug=True)
