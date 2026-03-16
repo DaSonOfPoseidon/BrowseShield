@@ -221,4 +221,108 @@
 
 ---
 
+---
+
+## API Contract
+
+The extension communicates with a backend API at `https://api.browseshield.dev/v1`. All endpoints use JSON request/response bodies.
+
+### Authentication
+
+#### `POST /v1/auth/login`
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response (200):**
+```json
+{
+  "access_token": "eyJhbGciOi...",
+  "refresh_token": "dGhpcyBpcyBh...",
+  "expires_in": 3600,
+  "user": {
+    "id": "user-1",
+    "email": "user@example.com",
+    "name": "Test User"
+  }
+}
+```
+
+#### `POST /v1/auth/logout`
+
+**Headers:** `Authorization: Bearer <access_token>`
+
+**Response (200):**
+```json
+{
+  "message": "Logged out"
+}
+```
+
+### Assessment
+
+#### `POST /v1/assess`
+
+Requires authentication.
+
+**Request:**
+```json
+{
+  "url": "https://example.com",
+  "scan_data": {
+    "forms": [
+      {
+        "action": "https://example.com/login",
+        "method": "post",
+        "hasPasswordField": true,
+        "inputCount": 3
+      }
+    ],
+    "links": { "total": 42, "external": 7 },
+    "meta": { "isHttps": true, "title": "Example Page" }
+  }
+}
+```
+
+`url` is always required. `scan_data` is a flexible JSON object — its shape will evolve as the content script scanning changes. The backend should accept it as a generic object rather than validating specific fields.
+
+**Response (200):**
+```json
+{
+  "safety": "suspicious",
+  "confidence": 72,
+  "reasons": [
+    "Page contains a login form",
+    "Domain registered recently"
+  ],
+  "assessed_at": "2026-02-24T14:30:00Z"
+}
+```
+
+- `safety`: `"safe"` | `"unsafe"` | `"suspicious"`
+- `confidence`: integer 0–100
+
+### Error Responses
+
+All errors follow the same shape:
+```json
+{
+  "error": "error_code",
+  "message": "Human-readable message"
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| 400 | Validation error (missing/invalid fields) |
+| 401 | Authentication required or token expired |
+| 500 | Server error |
+
+---
+
 *Last Updated: February 2026*

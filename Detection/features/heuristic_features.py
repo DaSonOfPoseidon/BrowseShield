@@ -11,27 +11,7 @@ import re
 from urllib.parse import urlparse
 
 
-SUSPICIOUS_KEYWORDS = [
-    "login",
-    "secure",
-    "verify",
-    "account",
-    "update",
-    "bank",
-    "confirm",
-    "signin",
-    "password"
-]
-
-SUSPICIOUS_TLDS = [
-    "ru",
-    "cn",
-    "tk",
-    "xyz",
-    "top",
-    "gq",
-    "ml"
-]
+from Backend.config import Config
 
 
 def extract_heuristic_features(url: str) -> dict:
@@ -53,7 +33,7 @@ def count_keywords(url: str) -> int:
     url_lower = url.lower()
     count = 0
 
-    for keyword in SUSPICIOUS_KEYWORDS:
+    for keyword in Config.SUSPICIOUS_KEYWORDS:
         if keyword in url_lower:
             count += 1
 
@@ -71,7 +51,7 @@ def check_suspicious_tld(domain: str) -> int:
         return 0
 
     tld = parts[-1]
-    return 1 if tld in SUSPICIOUS_TLDS else 0
+    return 1 if tld in Config.SUSPICIOUS_TLDS else 0
 
 
 def calculate_digit_ratio(domain: str) -> float:

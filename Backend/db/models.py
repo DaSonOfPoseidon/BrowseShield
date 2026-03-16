@@ -1,62 +1,32 @@
 """
 models.py
 ---------
-
-Defines lightweight data structures used by the BrowseShield backend
-when interacting with the PostgreSQL database.
-
-BrowseShield intentionally avoids storing real browsing history.
-These models only represent evaluation data used for detection metrics.
+Data structures used by the BrowseShield backend when
+interacting with the PostgreSQL database.
 """
 
 from dataclasses import dataclass
 from datetime import datetime
 
 
-# ------------------------------------
-# Analysis Request
-# Table: analysis_requests
-# ------------------------------------
-
 @dataclass
 class AnalysisRequest:
-    """
-    Represents a URL submitted to the detection engine.
-    """
     id: int
     url: str
     source: str
     submitted_at: datetime
 
 
-# ------------------------------------
-# Extracted Feature
-# Table: extracted_features
-# ------------------------------------
-
 @dataclass
 class ExtractedFeature:
-    """
-    Represents a single extracted feature from a scanned URL.
-    """
-
     id: int
     analysis_id: int
     feature_name: str
-    feature_value: int
+    feature_value: float
 
-
-# ------------------------------------
-# Detection Result
-# Table: detection_results
-# ------------------------------------
 
 @dataclass
 class DetectionResult:
-    """
-    Represents the classification output of the detection engine.
-    """
-
     id: int
     analysis_id: int
     heuristic_score: float

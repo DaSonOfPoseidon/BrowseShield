@@ -9,15 +9,7 @@ import ipaddress
 from urllib.parse import urlparse
 
 
-SHORTENING_SERVICES = [
-    "bit.ly",
-    "tinyurl.com",
-    "goo.gl",
-    "t.co",
-    "ow.ly",
-    "is.gd",
-    "buff.ly"
-]
+from Backend.config import Config
 
 
 def extract_url_features(url):
@@ -64,7 +56,7 @@ def url_length(url):
 
 
 def shortening_service(domain):
-    for service in SHORTENING_SERVICES:
+    for service in Config.SHORTENER_DOMAINS:
         if service in domain:
             return -1
     return 1

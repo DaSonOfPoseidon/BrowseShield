@@ -1,0 +1,362 @@
+/* ── Reset & base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  width: 330px;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #fafafb;
+  color: #3a3a48;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Card container ── */
+.popup-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10),
+              0 1px 4px rgba(0, 0, 0, 0.06);
+  margin: 6px;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid #e8e8ed;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.shield-icon {
+  width: 16px;
+  height: 16px;
+  color: #7a7a8a;
+}
+
+.brand-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3a3a48;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* ── Auth bar ── */
+.auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-btn {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border: 1px solid #d4d4dc;
+  border-radius: 6px;
+  background: #fff;
+  color: #5a5a6a;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.auth-btn:hover {
+  background: #f3f3f6;
+  border-color: #c0c0ca;
+}
+
+/* ── Login section ── */
+.login-section {
+  padding: 14px 20px;
+  border-bottom: 1px solid #e8e8ed;
+  background: #fafafb;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form input {
+  font-size: 12.5px;
+  padding: 7px 10px;
+  border: 1px solid #d4d4dc;
+  border-radius: 6px;
+  outline: none;
+  background: #fff;
+  color: #3a3a48;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.login-form input:focus {
+  border-color: #7a7af0;
+  box-shadow: 0 0 0 2px rgba(122, 122, 240, 0.15);
+}
+
+.login-submit {
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px;
+  border: none;
+  border-radius: 6px;
+  background: #5a5af0;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.login-submit:hover {
+  background: #4848d8;
+}
+
+.login-error {
+  margin: 0;
+  font-size: 11.5px;
+  color: #e5383b;
+}
+
+/* ── URL pill ── */
+.url-pill-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px 4px;
+}
+
+.url-pill {
+  display: inline-block;
+  max-width: 260px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c8c9a;
+  background: #f0f0f3;
+  padding: 4px 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Progress ring ── */
+.ring-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 18px 0 10px;
+}
+
+.ring-svg {
+  width: 110px;
+  height: 110px;
+}
+
+.ring-track {
+  fill: none;
+  stroke: #f0f0f2;
+  stroke-width: 7;
+}
+
+.ring-progress {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.8s ease-out, stroke 0.3s;
+}
+
+.ring-value {
+  font-size: 30px;
+  font-weight: 600;
+  fill: #3a3a48;
+  font-variant-numeric: tabular-nums;
+}
+
+.ring-label {
+  font-size: 11px;
+  font-weight: 500;
+  fill: #9e9eab;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* ── Stars ── */
+.stars-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0 14px;
+}
+
+.star-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Reasons list ── */
+.reasons-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 12px;
+}
+
+.reasons-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #6b6b7b;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  line-height: 1.45;
+}
+
+.reasons-list li:hover {
+  background: #f3f3f6;
+}
+
+.reasons-list li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c0c0ca;
+  position: relative;
+  top: 1px;
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: #e8e8ed;
+  margin: 0 20px;
+}
+
+/* ── Footer ── */
+.popup-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.footer-text {
+  font-size: 11.5px;
+  color: #6e6e7e;
+  font-weight: 500;
+}
+
+.footer-copy {
+  font-size: 10px;
+  color: #b0b0bc;
+}
+
+/* ── Safety colors ── */
+.status-safe .ring-progress { stroke: #34c759; }
+.status-suspicious .ring-progress { stroke: #f5a623; }
+.status-unsafe .ring-progress { stroke: #e5383b; }
+
+/* ── Loading state ── */
+.state-loading .ring-wrapper,
+.state-loading .stars-wrapper {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Email subject ── */
+.email-subject-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0 20px 4px;
+}
+
+.email-subject {
+  display: inline-block;
+  max-width: 280px;
+  font-size: 11px;
+  color: #9e9eab;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Suspicious links ── */
+.suspicious-links-section {
+  padding: 0 20px 12px;
+}
+
+.suspicious-links-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #6b6b7b;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.suspicious-links-toggle:hover {
+  background: #f3f3f6;
+}
+
+.suspicious-links-count {
+  font-size: 10.5px;
+  color: #9e9eab;
+}
+
+.suspicious-links-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.suspicious-links-list li {
+  font-size: 11.5px;
+  color: #e5383b;
+  padding: 3px 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+  transition: background 0.15s;
+}
+
+.suspicious-links-list li:hover {
+  background: #fef2f2;
+}
+
+/* ── No-data / error label ── */
+.status-message {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9e9eab;
+  padding: 4px 0 8px;
+}
+
+.status-message.error {
+  color: #e5383b;
+}
