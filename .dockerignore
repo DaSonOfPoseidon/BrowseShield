@@ -1,8 +1,6 @@
 .git
 .github
 Extension/
-Detection/
-ML/
 Data/
 docs/
 .env
