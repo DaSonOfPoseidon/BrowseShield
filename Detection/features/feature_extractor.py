@@ -28,7 +28,7 @@ def extract_features(url: str, page_data: dict | None = None) -> dict:
     features.update(extract_domain_features(url))
 
     if page_data:
-        features.update(extract_form_features(page_data))
+        features.update(extract_form_features(page_data, url))
 
     # Heuristic-only features
     features.update(extract_heuristic_features(url))

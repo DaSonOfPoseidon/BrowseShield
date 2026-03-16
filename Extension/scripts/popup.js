@@ -42,11 +42,22 @@ async function init() {
 
   if (!scanResponse?.data) {
     showStatus("No data yet");
-    return;
+  } else if (scanResponse.data.loading) {
+    showStatus("Scanning...");
+  } else {
+    renderEntry(scanResponse.data);
   }
 
-  const entry = scanResponse.data;
+  // Listen for live updates from background.js
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "session" && changes[`scan_${tab.id}`]) {
+      const updated = changes[`scan_${tab.id}`].newValue;
+      if (updated) renderEntry(updated);
+    }
+  });
+}
 
+function renderEntry(entry) {
   // Update URL from scan data if available
   if (entry.scan?.url) {
     renderUrl(entry.scan.url);
@@ -364,7 +375,7 @@ function showError(msg) {
 
 // Export for testing (no-op in browser)
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { deriveStatus, deriveConfidence, renderUrl, renderEmailMode, setupAuth, init, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
+  module.exports = { deriveStatus, deriveConfidence, renderUrl, renderEmailMode, setupAuth, init, renderEntry, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
 } else {
   init();
 }

@@ -4,10 +4,13 @@ assess.py
 API endpoints for analyzing URLs and emails using the BrowseShield detection engine.
 """
 
+import logging
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from flask import Blueprint, request, jsonify
+
+logger = logging.getLogger(__name__)
 
 from Backend.services.features import build_url_features
 from Backend.services.risk_engine import evaluate_risk
@@ -49,12 +52,14 @@ def assess_url():
     features = build_url_features(url, scan_data)
     heuristic_result = evaluate_risk(features)
 
-    # ML pipeline
-    ml_features = extract_features(url, scan_data)
-    ml_result = predict_phishing(ml_features)
-
-    # Combined result for Extension
-    result = compute_final_result(heuristic_result, ml_result)
+    # ML pipeline (fall back to heuristic-only if ML fails)
+    try:
+        ml_features = extract_features(url, scan_data)
+        ml_result = predict_phishing(ml_features)
+        result = compute_final_result(heuristic_result, ml_result)
+    except Exception:
+        logger.exception("ML prediction failed, using heuristic-only result")
+        result = heuristic_result
 
     try:
         with get_db_connection() as conn:
