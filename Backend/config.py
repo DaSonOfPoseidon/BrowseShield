@@ -13,7 +13,7 @@ class Config:
     JWT_REFRESH_EXPIRES = int(os.environ.get("JWT_REFRESH_EXPIRES", 604800))  # 7 days
 
     # ML model path
-    MODEL_PATH = os.getenv("MODEL_PATH", "Backend/ml/model.pkl")
+    MODEL_PATH = os.getenv("MODEL_PATH", "ML/model.pkl")
 
     # Detection scoring weights
     HEURISTIC_WEIGHT = float(os.getenv("HEURISTIC_WEIGHT", 0.4))

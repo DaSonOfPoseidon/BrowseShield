@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report
 import joblib
 
 # Load dataset
-df = pd.read_csv("../Backend/datasets/phishing_training_data.csv")
+df = pd.read_csv("ML/datasets/phishing_training_data.csv")
 
 X = df.drop("label", axis=1)
 y = df["label"]
@@ -33,6 +33,6 @@ predictions = model.predict(X_test)
 print(classification_report(y_test, predictions))
 
 # Save model
-joblib.dump(model, "../Backend/ml/model.pkl")
+joblib.dump(model, "ML/model.pkl")
 
 print("Model saved to model.pkl")
