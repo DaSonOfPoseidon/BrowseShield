@@ -54,6 +54,8 @@
     <p>Phishing Detection and Awarness Website Portal</p>
     <a href="/register" class="btn register">Create Account</a>
     <a href="/login" class="btn login">Login</a>
-    <a href="/wiki" class="btn wiki">Safety Scores and Tips Wiki</a>
+    {% if current_user.is_authenticated %}
+        <a href="/wiki" class="btn wiki">Safety Scores and Tips Wiki</a>
+    {% endif %}
 </body>
 </html>
