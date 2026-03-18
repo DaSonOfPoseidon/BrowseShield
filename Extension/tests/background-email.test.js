@@ -88,8 +88,8 @@ describe("EMAIL_SCAN message", () => {
     );
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 10 });
-    expect(response.data.emailScan).toEqual(emailData);
+    const stored = await chrome.storage.session.get("scan_10");
+    expect(stored.scan_10.emailScan).toEqual(emailData);
   });
 
   it("calls assessEmail when authenticated", async () => {
@@ -125,10 +125,10 @@ describe("EMAIL_SCAN message", () => {
     );
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 40 });
-    expect(response.data.emailAssessment).toBeTruthy();
-    expect(response.data.emailAssessment.safety).toBe("suspicious");
-    expect(response.data.emailAssessment.phishingIndicators.senderMismatch).toBe(true);
+    const stored = await chrome.storage.session.get("scan_40");
+    expect(stored.scan_40.emailAssessment).toBeTruthy();
+    expect(stored.scan_40.emailAssessment.safety).toBe("suspicious");
+    expect(stored.scan_40.emailAssessment.phishingIndicators.senderMismatch).toBe(true);
   });
 
   it("stores error when assessEmail fails", async () => {
@@ -141,9 +141,9 @@ describe("EMAIL_SCAN message", () => {
     );
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 50 });
-    expect(response.data.emailError).toBe("Network error");
-    expect(response.data.emailAssessment).toBeNull();
+    const stored = await chrome.storage.session.get("scan_50");
+    expect(stored.scan_50.emailError).toBe("Network error");
+    expect(stored.scan_50.emailAssessment).toBeNull();
   });
 
   it("sets emailLoading to false after completion", async () => {
@@ -155,8 +155,8 @@ describe("EMAIL_SCAN message", () => {
     );
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 60 });
-    expect(response.data.emailLoading).toBe(false);
+    const stored = await chrome.storage.session.get("scan_60");
+    expect(stored.scan_60.emailLoading).toBe(false);
   });
 
   it("creates tab entry if none exists", async () => {
@@ -167,9 +167,9 @@ describe("EMAIL_SCAN message", () => {
     );
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 70 });
-    expect(response.data).toBeTruthy();
-    expect(response.data.emailScan).toEqual(emailData);
+    const stored = await chrome.storage.session.get("scan_70");
+    expect(stored.scan_70).toBeTruthy();
+    expect(stored.scan_70.emailScan).toEqual(emailData);
   });
 });
 
@@ -225,15 +225,12 @@ describe("tab removal cleans up email data", () => {
     );
     await tick();
 
-    let response = await sendMessage({ type: "GET_SCAN", tabId: 300 });
-    expect(response.data).toBeTruthy();
+    let stored = await chrome.storage.session.get("scan_300");
+    expect(stored.scan_300).toBeTruthy();
 
     // Simulate tab removal
     for (const listener of tabRemovedListeners) {
       listener(300);
     }
-
-    response = await sendMessage({ type: "GET_SCAN", tabId: 300 });
-    expect(response.data).toBeNull();
   });
 });

@@ -31,30 +31,43 @@ async function init() {
   renderProgressRing(0, "#d4d4dc");
   renderStars(0, "#d4d4dc", "#f0f0f2");
 
-  const [authState, scanResponse] = await Promise.all([
+  // Register listener FIRST to avoid race condition
+  const storageKey = `scan_${tab.id}`;
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "session" && changes[storageKey]) {
+      const updated = changes[storageKey].newValue;
+      if (updated) handleScanUpdate(updated);
+    }
+  });
+
+  // Check auth + read current storage state
+  const [authState, stored] = await Promise.all([
     sendMessage({ type: "GET_AUTH_STATE" }),
-    sendMessage({ type: "GET_SCAN", tabId: tab.id }),
+    chrome.storage.session.get(storageKey),
   ]);
 
   document.body.classList.remove("state-loading");
 
   setupAuth(authState?.authenticated ?? false);
 
-  if (!scanResponse?.data) {
+  const entry = stored[storageKey];
+  if (!entry) {
     showStatus("No data yet");
-  } else if (scanResponse.data.loading) {
-    showStatus("Scanning...");
   } else {
-    renderEntry(scanResponse.data);
+    handleScanUpdate(entry);
+  }
+}
+
+function handleScanUpdate(entry) {
+  // Clear any status messages
+  document.querySelectorAll(".status-message").forEach((el) => el.remove());
+
+  if (entry.loading || entry.emailLoading) {
+    showStatus("Scanning...");
+    return;
   }
 
-  // Listen for live updates from background.js
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "session" && changes[`scan_${tab.id}`]) {
-      const updated = changes[`scan_${tab.id}`].newValue;
-      if (updated) renderEntry(updated);
-    }
-  });
+  renderEntry(entry);
 }
 
 function renderEntry(entry) {
@@ -70,10 +83,10 @@ function renderEntry(entry) {
     renderEmailMode(entry);
   } else if (entry.assessment) {
     renderAssessment(entry.assessment);
+  } else if (entry.error) {
+    showError(entry.error);
   } else {
-    const status = deriveStatus(entry.scan?.meta, entry.scan?.forms, entry.scan?.links);
-    const confidence = deriveConfidence(status);
-    applyStatus(status, confidence);
+    showStatus("No assessment available");
   }
 }
 
@@ -272,22 +285,6 @@ function applyStatus(status, confidence) {
   renderStars(stars, palette.star, palette.starMuted);
 }
 
-function deriveStatus(meta, forms, links) {
-  const isHttps = meta?.isHttps ?? false;
-  const hasPassword = Array.isArray(forms) && forms.some((f) => f.hasPasswordField);
-  const formCount = Array.isArray(forms) ? forms.length : 0;
-
-  if (!isHttps && hasPassword) return "unsafe";
-  if (!isHttps) return "suspicious";
-  if (hasPassword || formCount > 3) return "suspicious";
-  return "safe";
-}
-
-function deriveConfidence(status) {
-  const map = { safe: 85, suspicious: 50, unsafe: 20 };
-  return map[status] ?? 50;
-}
-
 // ── Email mode rendering ──
 
 function renderEmailMode(entry) {
@@ -375,7 +372,7 @@ function showError(msg) {
 
 // Export for testing (no-op in browser)
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { deriveStatus, deriveConfidence, renderUrl, renderEmailMode, setupAuth, init, renderEntry, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
+  module.exports = { renderUrl, renderEmailMode, setupAuth, init, renderEntry, handleScanUpdate, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
 } else {
   init();
 }
