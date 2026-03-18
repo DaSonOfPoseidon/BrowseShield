@@ -46,6 +46,17 @@ FROM detection_results
 WHERE classification = 'safe';
 """
 
+COUNT_SUSPICIOUS = """
+SELECT COUNT(*)
+FROM detection_results
+WHERE classification = 'suspicious';
+"""
+
+AVERAGE_RISK_SCORE = """
+SELECT AVG(final_score)
+FROM detection_results;
+"""
+
 # ---------------------------
 # AUTH QUERIES
 # ---------------------------

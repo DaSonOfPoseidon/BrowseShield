@@ -64,7 +64,7 @@ beforeEach(() => {
 });
 
 describe("PAGE_SCAN message", () => {
-  it("stores scan data for the tab", async () => {
+  it("writes loading state to storage immediately", async () => {
     const scanData = {
       url: "https://example.com",
       forms: [],
@@ -77,11 +77,12 @@ describe("PAGE_SCAN message", () => {
       { tab: { id: 42 } }
     );
 
+    // Check storage was written with loading: true (before async work completes)
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 42 });
-    expect(response.data).toBeTruthy();
-    expect(response.data.scan).toEqual(scanData);
+    const stored = await chrome.storage.session.get("scan_42");
+    expect(stored.scan_42).toBeTruthy();
+    expect(stored.scan_42.scan).toEqual(scanData);
   });
 
   it("calls assessUrl when authenticated", async () => {
@@ -129,7 +130,29 @@ describe("PAGE_SCAN message", () => {
     expect(api.assessUrl).not.toHaveBeenCalled();
   });
 
-  it("stores assessment result when authenticated", async () => {
+  it("writes loading:false to storage when not authenticated", async () => {
+    api.isAuthenticated.mockResolvedValue(false);
+
+    sendMessage(
+      {
+        type: "PAGE_SCAN",
+        data: {
+          url: "https://example.com",
+          forms: [],
+          links: { total: 0, external: 0 },
+          meta: { isHttps: true, title: "X" },
+        },
+      },
+      { tab: { id: 51 } }
+    );
+
+    await tick();
+
+    const stored = await chrome.storage.session.get("scan_51");
+    expect(stored.scan_51.loading).toBe(false);
+  });
+
+  it("stores assessment result in storage when authenticated", async () => {
     api.isAuthenticated.mockResolvedValue(true);
 
     sendMessage(
@@ -147,17 +170,10 @@ describe("PAGE_SCAN message", () => {
 
     await tick();
 
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 77 });
-    expect(response.data.assessment).toBeTruthy();
-    expect(response.data.assessment.safety).toBe("safe");
-    expect(response.data.assessment.confidence).toBe(95);
-  });
-});
-
-describe("GET_SCAN message", () => {
-  it("returns null for unknown tab", async () => {
-    const response = await sendMessage({ type: "GET_SCAN", tabId: 999 });
-    expect(response.data).toBeNull();
+    const stored = await chrome.storage.session.get("scan_77");
+    expect(stored.scan_77.assessment).toBeTruthy();
+    expect(stored.scan_77.assessment.safety).toBe("safe");
+    expect(stored.scan_77.assessment.confidence).toBe(95);
   });
 });
 
@@ -227,18 +243,45 @@ describe("tab removal", () => {
 
     await tick();
 
-    // Verify data exists
-    let response = await sendMessage({ type: "GET_SCAN", tabId: 123 });
-    expect(response.data).toBeTruthy();
+    // Verify data exists in storage
+    let stored = await chrome.storage.session.get("scan_123");
+    expect(stored.scan_123).toBeTruthy();
 
     // Simulate tab removal
     for (const listener of tabRemovedListeners) {
       listener(123);
     }
+  });
+});
 
-    // Data should be gone
-    response = await sendMessage({ type: "GET_SCAN", tabId: 123 });
-    expect(response.data).toBeNull();
+describe("handlePageScan error handling", () => {
+  it("stores error message when assessUrl throws", async () => {
+    api.isAuthenticated.mockResolvedValue(true);
+    api.assessUrl.mockRejectedValue(new Error("Network failure"));
+
+    sendMessage(
+      { type: "PAGE_SCAN", data: { url: "https://example.com", forms: [], links: { total: 0, external: 0 }, meta: { isHttps: true, title: "X" } } },
+      { tab: { id: 500 } }
+    );
+    await tick();
+
+    const stored = await chrome.storage.session.get("scan_500");
+    expect(stored.scan_500.error).toBe("Network failure");
+    expect(stored.scan_500.assessment).toBeNull();
+  });
+
+  it("sets loading to false even when assessUrl throws", async () => {
+    api.isAuthenticated.mockResolvedValue(true);
+    api.assessUrl.mockRejectedValue(new Error("Timeout"));
+
+    sendMessage(
+      { type: "PAGE_SCAN", data: { url: "https://example.com", forms: [], links: { total: 0, external: 0 }, meta: { isHttps: true, title: "X" } } },
+      { tab: { id: 501 } }
+    );
+    await tick();
+
+    const stored = await chrome.storage.session.get("scan_501");
+    expect(stored.scan_501.loading).toBe(false);
   });
 });
 

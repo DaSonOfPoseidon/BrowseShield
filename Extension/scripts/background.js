@@ -33,12 +33,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
 
-  if (message.type === "GET_SCAN") {
-    const entry = tabResults.get(message.tabId) ?? null;
-    sendResponse({ data: entry });
-    return;
-  }
-
   if (message.type === "GET_AUTH_STATE") {
     api.isAuthenticated().then((authed) => {
       sendResponse({ authenticated: authed });
@@ -66,10 +60,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handlePageScan(tabId, scanData) {
   const entry = { scan: scanData, assessment: null, loading: true, error: null };
   tabResults.set(tabId, entry);
+  chrome.storage.session.set({ [`scan_${tabId}`]: entry });
 
   const authed = await api.isAuthenticated();
   if (!authed) {
     entry.loading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
     return;
   }
 
@@ -85,6 +81,7 @@ async function handlePageScan(tabId, scanData) {
     entry.error = err.message;
   } finally {
     entry.loading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
   }
 }
 
@@ -99,10 +96,12 @@ async function handleEmailScan(tabId, emailData) {
   entry.emailAssessment = null;
   entry.emailLoading = true;
   entry.emailError = null;
+  chrome.storage.session.set({ [`scan_${tabId}`]: entry });
 
   const authed = await api.isAuthenticated();
   if (!authed) {
     entry.emailLoading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
     return;
   }
 
@@ -113,6 +112,7 @@ async function handleEmailScan(tabId, emailData) {
     entry.emailError = err.message;
   } finally {
     entry.emailLoading = false;
+    chrome.storage.session.set({ [`scan_${tabId}`]: entry });
   }
 }
 

@@ -106,13 +106,14 @@ setupDOM();
 
 const popup = await import("../scripts/popup.js");
 const {
-  deriveStatus,
-  deriveConfidence,
   renderUrl,
   renderEmailMode,
   setupAuth,
   renderSuspiciousLinks,
   applyStatus,
+  handleScanUpdate,
+  showStatus,
+  renderEntry,
 } = popup;
 
 beforeEach(() => {
@@ -121,71 +122,60 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-// ── deriveStatus ──
+// ── handleScanUpdate ──
 
-describe("deriveStatus", () => {
-  it("HTTP + password field → unsafe", () => {
-    const meta = { isHttps: false };
-    const forms = [{ hasPasswordField: true }];
-    expect(deriveStatus(meta, forms, [])).toBe("unsafe");
+describe("handleScanUpdate", () => {
+  it("clears status messages and shows Scanning... when loading", () => {
+    showStatus("No data yet");
+    expect(document.querySelector(".status-message")).toBeTruthy();
+
+    handleScanUpdate({ loading: true });
+    const msgs = document.querySelectorAll(".status-message");
+    expect(msgs.length).toBe(1);
+    expect(msgs[0].textContent).toBe("Scanning...");
   });
 
-  it("HTTP without password → suspicious", () => {
-    const meta = { isHttps: false };
-    const forms = [{ hasPasswordField: false }];
-    expect(deriveStatus(meta, forms, [])).toBe("suspicious");
+  it("clears status messages and shows Scanning... when emailLoading", () => {
+    handleScanUpdate({ emailLoading: true });
+    const msgs = document.querySelectorAll(".status-message");
+    expect(msgs.length).toBe(1);
+    expect(msgs[0].textContent).toBe("Scanning...");
   });
 
-  it("HTTPS + password field → suspicious", () => {
-    const meta = { isHttps: true };
-    const forms = [{ hasPasswordField: true }];
-    expect(deriveStatus(meta, forms, [])).toBe("suspicious");
-  });
-
-  it("HTTPS + >3 forms → suspicious", () => {
-    const meta = { isHttps: true };
-    const forms = [
-      { hasPasswordField: false },
-      { hasPasswordField: false },
-      { hasPasswordField: false },
-      { hasPasswordField: false },
-    ];
-    expect(deriveStatus(meta, forms, [])).toBe("suspicious");
-  });
-
-  it("HTTPS, no password, ≤3 forms → safe", () => {
-    const meta = { isHttps: true };
-    const forms = [{ hasPasswordField: false }];
-    expect(deriveStatus(meta, forms, [])).toBe("safe");
-  });
-
-  it("handles null meta gracefully (treats as HTTP → suspicious)", () => {
-    expect(deriveStatus(null, [], [])).toBe("suspicious");
-  });
-
-  it("handles null forms gracefully", () => {
-    const meta = { isHttps: false };
-    expect(deriveStatus(meta, null, [])).toBe("suspicious");
+  it("clears status messages and renders entry when not loading", () => {
+    showStatus("Scanning...");
+    handleScanUpdate({
+      assessment: { safety: "safe", confidence: 90, reasons: [] },
+    });
+    expect(document.querySelector(".status-message")).toBeNull();
+    const card = document.querySelector(".popup-card");
+    expect(card.classList.contains("status-safe")).toBe(true);
   });
 });
 
-// ── deriveConfidence ──
+// ── renderEntry ──
 
-describe("deriveConfidence", () => {
-  it("safe → 85", () => {
-    expect(deriveConfidence("safe")).toBe(85);
+describe("renderEntry", () => {
+  it("shows error message when entry has error", () => {
+    renderEntry({ error: "Network failure" });
+    const msg = document.querySelector(".status-message.error");
+    expect(msg).toBeTruthy();
+    expect(msg.textContent).toBe("Network failure");
   });
 
-  it("suspicious → 50", () => {
-    expect(deriveConfidence("suspicious")).toBe(50);
+  it("shows 'No assessment available' when no assessment and no error", () => {
+    renderEntry({ scan: { url: "https://example.com" } });
+    const msg = document.querySelector(".status-message");
+    expect(msg).toBeTruthy();
+    expect(msg.textContent).toBe("No assessment available");
   });
 
-  it("unsafe → 20", () => {
-    expect(deriveConfidence("unsafe")).toBe(20);
-  });
-
-  it("unknown status → 50", () => {
-    expect(deriveConfidence("banana")).toBe(50);
+  it("renders assessment when present", () => {
+    renderEntry({
+      assessment: { safety: "suspicious", confidence: 60, reasons: ["Test"] },
+    });
+    const card = document.querySelector(".popup-card");
+    expect(card.classList.contains("status-suspicious")).toBe(true);
   });
 });
 

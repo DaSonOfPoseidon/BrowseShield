@@ -12,6 +12,13 @@ class Config:
     JWT_ACCESS_EXPIRES = int(os.environ.get("JWT_ACCESS_EXPIRES", 900))  # 15 min
     JWT_REFRESH_EXPIRES = int(os.environ.get("JWT_REFRESH_EXPIRES", 604800))  # 7 days
 
+    # ML model path
+    MODEL_PATH = os.getenv("MODEL_PATH", "ML/model.pkl")
+
+    # Detection scoring weights
+    HEURISTIC_WEIGHT = float(os.getenv("HEURISTIC_WEIGHT", 0.4))
+    ML_WEIGHT = float(os.getenv("ML_WEIGHT", 0.6))
+
     SUSPICIOUS_TLDS = {
         "tk", "ml", "ga", "cf", "xyz", "top", "buzz", "icu", "gq", "click", "link", "work",
     }
@@ -23,4 +30,9 @@ class Config:
     KNOWN_BRANDS = {
         "paypal", "apple", "google", "microsoft", "amazon", "netflix", "facebook",
         "instagram", "chase", "wellsfargo", "bankofamerica",
+    }
+
+    SUSPICIOUS_KEYWORDS = {
+        "login", "secure", "verify", "account", "update", "bank", "confirm",
+        "signin", "password",
     }

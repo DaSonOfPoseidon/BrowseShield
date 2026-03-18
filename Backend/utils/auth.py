@@ -26,7 +26,7 @@ def check_password(password, hashed):
 
 def create_access_token(user_id):
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc) + timedelta(seconds=Config.JWT_ACCESS_EXPIRES),
         "type": "access",
@@ -62,7 +62,7 @@ def jwt_required(f):
         if payload.get("type") != "access":
             return jsonify({"error": "invalid_token", "message": "Invalid token type"}), 401
 
-        g.user_id = payload["sub"]
+        g.user_id = int(payload["sub"])
         return f(*args, **kwargs)
 
     return decorated

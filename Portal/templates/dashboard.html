@@ -49,6 +49,7 @@
         <div style="float:left; display:flex; align-items:center;">
         <img src="{{ url_for('static', filename='logo.png') }}" width="40" style="margin-right:10px;">
         <span style="font-size:20px; font-weight:bold;">BrowseShield</span>
+
         </div>
       
         <form action="/logout" method="POST" style="display:inline;">
@@ -60,6 +61,13 @@
         <h1>Dashboard</h1>
         <p>Welcome to BrowseShield</p>
         <p>Logged in as: {{ email }}</p>
+
+        <div style="margin-top: 20px;">
+            <a href="/wiki" class="logout-btn" style="background-color: #3b82f6;">
+                Safety Scores and Tips Wiki
+            </a>
+        </div>
+        
     </div>
 </body>
 </html>

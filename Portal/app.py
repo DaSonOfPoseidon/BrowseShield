@@ -22,6 +22,10 @@ def create_app():
     @app.route("/")
     def index():
         return render_template("index.html")
+    
+    @app.route("/wiki")
+    def wiki():
+        return render_template("wiki.html")
 
     return app
 

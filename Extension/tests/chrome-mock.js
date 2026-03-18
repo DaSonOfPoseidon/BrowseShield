@@ -4,6 +4,30 @@ const storage = new Map();
 
 const chromeMock = {
   storage: {
+    onChanged: { addListener: () => {} },
+    session: {
+      get: async (keys) => {
+        if (typeof keys === "string") keys = [keys];
+        const result = {};
+        for (const key of keys) {
+          if (storage.has(key)) {
+            result[key] = storage.get(key);
+          }
+        }
+        return result;
+      },
+      set: async (items) => {
+        for (const [key, value] of Object.entries(items)) {
+          storage.set(key, value);
+        }
+      },
+      remove: async (keys) => {
+        if (typeof keys === "string") keys = [keys];
+        for (const key of keys) {
+          storage.delete(key);
+        }
+      },
+    },
     local: {
       get: async (keys) => {
         if (typeof keys === "string") keys = [keys];

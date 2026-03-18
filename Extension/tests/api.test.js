@@ -18,11 +18,13 @@ const {
   refreshAccessToken,
   validateBaseUrl,
   ApiError,
+  _setUseStubs,
 } = api;
 
 beforeEach(() => {
   resetStorage();
   vi.restoreAllMocks();
+  _setUseStubs(false);
 });
 
 // Helper to create token data matching the saveToken signature
@@ -38,6 +40,8 @@ function tokenData(overrides = {}) {
 // --- Stub mode responses ---
 
 describe("login (stub)", () => {
+  beforeEach(() => _setUseStubs(true));
+
   it("returns a token and user object", async () => {
     const result = await login("test@example.com", "pw");
     expect(result).toHaveProperty("access_token");
@@ -72,6 +76,8 @@ describe("login (stub)", () => {
 });
 
 describe("logout (stub)", () => {
+  beforeEach(() => _setUseStubs(true));
+
   it("returns a message", async () => {
     await login("test@example.com", "pw");
     const result = await logout();
@@ -97,6 +103,8 @@ describe("logout (stub)", () => {
 });
 
 describe("assessUrl (stub)", () => {
+  beforeEach(() => _setUseStubs(true));
+
   it("returns correct response shape", async () => {
     const result = await assessUrl("https://example.com", {
       forms: [],
@@ -133,6 +141,8 @@ describe("assessUrl (stub)", () => {
 // --- assessEmail (stub) ---
 
 describe("assessEmail (stub)", () => {
+  beforeEach(() => _setUseStubs(true));
+
   it("returns correct response shape", async () => {
     const result = await assessEmail({
       sender: { name: "Test", address: "test@example.com" },
@@ -423,6 +433,8 @@ describe("refreshAccessToken", () => {
 // --- Response validation ---
 
 describe("response validation", () => {
+  beforeEach(() => _setUseStubs(true));
+
   it("login rejects response with missing access_token (via stub mutation would be artificial, so test indirectly)", async () => {
     // The stubs have valid data, so login should succeed
     const result = await login("test@example.com", "pw");

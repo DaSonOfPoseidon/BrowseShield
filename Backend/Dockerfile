@@ -2,10 +2,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY Backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
-COPY . /app/Backend/
+COPY Backend/ /app/Backend/
+COPY ML/ /app/ML/
+COPY Detection/ /app/Detection/
 
 ENV PYTHONPATH=/app
 
