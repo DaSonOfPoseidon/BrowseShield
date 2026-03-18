@@ -4,7 +4,11 @@
 const DEFAULT_API_BASE = "https://api.browseshield.dev/v1";
 
 // When true, endpoint functions return mock data instead of making real requests.
-const USE_STUBS = false;
+let USE_STUBS = false;
+
+export function _setUseStubs(value) {
+  USE_STUBS = Boolean(value);
+}
 
 // Resolved at call time — use getApiBase() instead of API_BASE directly.
 let _cachedApiBase = null;
