@@ -17,10 +17,8 @@ def create_app():
         return User.query.get(int(user_id))
 
     from Portal.routes.auth import auth
-    from Portal.routes.dashboard import dashboard_bp
 
     app.register_blueprint(auth)
-    app.register_blueprint(dashboard_bp)
 
     @app.route("/")
     def index():
@@ -35,4 +33,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=3000, debug=True)
