@@ -8,7 +8,7 @@ import logging
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,8 @@ def assess_url():
         with get_db_connection() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(INSERT_ANALYSIS_REQUEST, (url, "api"))
+            user_id = g.user_id
+            cursor.execute(INSERT_ANALYSIS_REQUEST, (url, "api", user_id))
             analysis_id = cursor.fetchone()[0]
 
             for feature_name, value in features.items():

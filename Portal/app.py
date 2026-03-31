@@ -17,7 +17,10 @@ def create_app():
         return User.query.get(int(user_id))
 
     from Portal.routes.auth import auth
+    from Portal.routes.dashboard import dashboard_bp
+
     app.register_blueprint(auth)
+    app.register_blueprint(dashboard_bp, url_prefix="/api")
 
     @app.route("/")
     def index():
