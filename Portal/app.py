@@ -20,7 +20,7 @@ def create_app():
     from Portal.routes.dashboard import dashboard_bp
 
     app.register_blueprint(auth)
-    app.register_blueprint(dashboard_bp, url_prefix="/api")
+    app.register_blueprint(dashboard_bp)
 
     @app.route("/")
     def index():
