@@ -86,7 +86,7 @@ def dashboard():
     if token:
         try:
             response = requests.get(
-                "https://browseshield.dev/user-data",
+                "https://browseshield.dev/v1/user-data",
                 headers={
                     "Authorization": f"Bearer {token}"
                 },
