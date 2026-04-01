@@ -26,7 +26,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/v1")
     app.register_blueprint(assess_bp, url_prefix="/v1")
     app.register_blueprint(metrics_bp, url_prefix="/v1")
-    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(dashboard_bp, url_prefix="/v1")
 
     return app
 
