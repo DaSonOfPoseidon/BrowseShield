@@ -9,8 +9,8 @@ Centralized SQL queries for BrowseShield.
 # ---------------------------
 
 INSERT_ANALYSIS_REQUEST = """
-INSERT INTO analysis_requests (url, source)
-VALUES (%s, %s)
+INSERT INTO analysis_requests (url, source, user_id)
+VALUES (%s, %s, %s)
 RETURNING id;
 """
 
