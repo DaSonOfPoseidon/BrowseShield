@@ -14,6 +14,7 @@ class AnalysisRequest:
     id: int
     url: str
     source: str
+    user_id: int
     submitted_at: datetime
 
 

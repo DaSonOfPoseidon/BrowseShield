@@ -2,6 +2,7 @@ CREATE TABLE analysis_requests (
     id SERIAL PRIMARY KEY,
     url TEXT NOT NULL,
     source TEXT,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

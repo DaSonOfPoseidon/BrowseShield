@@ -1,7 +1,30 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    password VARCHAR(200) NOT NULL,
+    name VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE refresh_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE analysis_requests (
     id SERIAL PRIMARY KEY,
     url TEXT NOT NULL,
     source TEXT,
+    user_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -32,6 +55,10 @@ CREATE TABLE detection_results (
 
 CREATE INDEX idx_analysis_url
 ON analysis_requests(url);
+
+
+CREATE INDEX idx_analysis_user
+ON analysis_requests(user_id);
 
 
 CREATE INDEX idx_feature_analysis
