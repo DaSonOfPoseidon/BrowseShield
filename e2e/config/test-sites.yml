@@ -1,0 +1,56 @@
+# BrowseShield E2E Test Sites Configuration
+#
+# assertion_mode:
+#   "exact"  — safety must match expected_safety exactly
+#   "smoke"  — only verify a result is returned without error
+#
+# All fixture pages inherit a +0.13 baseline from https_absent (0.05) + has_port (0.08)
+
+fixtures:
+  base_url: "http://localhost:9090"
+  sites:
+    - path: "/safe-baseline.html"
+      label: "Safe baseline — no suspicious indicators"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+      min_confidence: 80
+
+    - path: "/phishing-login-external.html"
+      label: "Phishing — external login form, hidden iframes, external favicon"
+      expected_safety: "unsafe"
+      assertion_mode: "exact"
+      min_confidence: 40
+
+    - path: "/suspicious-mixed.html"
+      label: "Suspicious — meta refresh, null links, right-click disabled, external resources"
+      expected_safety: "suspicious"
+      assertion_mode: "exact"
+      min_confidence: 40
+
+    - path: "/right-click-disabled.html"
+      label: "Borderline safe — right-click disabled, null links"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+
+  # Accessed via IP to trigger has_ip_address rule
+  ip_access_sites:
+    - url: "http://127.0.0.1:9090/ip-address-page.html"
+      label: "IP address URL detection"
+      expected_safety: "suspicious"
+      assertion_mode: "exact"
+
+live_sites:
+  - url: "https://www.google.com"
+    label: "Google homepage"
+    expected_safety: "safe"
+    assertion_mode: "smoke"
+
+  - url: "https://en.wikipedia.org"
+    label: "Wikipedia"
+    expected_safety: "safe"
+    assertion_mode: "smoke"
+
+  - url: "https://example.com"
+    label: "Example.com"
+    expected_safety: "safe"
+    assertion_mode: "smoke"

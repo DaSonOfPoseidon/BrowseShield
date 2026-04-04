@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Right Click Disabled Test</title>
+</head>
+<!-- Right-click disabled triggers right_click_disabled -->
+<body oncontextmenu="return false">
+  <h1>Protected Content Page</h1>
+  <p>This page disables right-click and has several non-functional links. Together with the
+  HTTP+port baseline, the total score should remain just below the suspicious threshold.</p>
+
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+  ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+  laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+  <!-- 6 null links to trigger null_links_excessive (threshold > 5) -->
+  <nav>
+    <a href="#">Nav 1</a>
+    <a href="#">Nav 2</a>
+    <a href="javascript:void(0)">Nav 3</a>
+    <a href="#">Nav 4</a>
+    <a href="">Nav 5</a>
+    <a href="#">Nav 6</a>
+  </nav>
+</body>
+</html>

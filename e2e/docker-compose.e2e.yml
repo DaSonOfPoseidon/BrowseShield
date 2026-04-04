@@ -1,0 +1,45 @@
+services:
+  db-test:
+    image: postgres:16-alpine
+    container_name: browseshield-db-test
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./fixtures/seed.sql:/docker-entrypoint-initdb.d/01-seed.sql
+    environment:
+      POSTGRES_DB: browseshield_e2e
+      POSTGRES_USER: browseshield_test
+      POSTGRES_PASSWORD: e2e-test-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U browseshield_test -d browseshield_e2e"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend-test:
+    build:
+      context: ..
+      dockerfile: Backend/Dockerfile
+    container_name: browseshield-backend-test
+    ports:
+      - "8001:8000"
+    environment:
+      DB_HOST: db-test
+      DB_PORT: "5432"
+      DB_NAME: browseshield_e2e
+      DB_USER: browseshield_test
+      DB_PASSWORD: e2e-test-password
+      JWT_SECRET_KEY: e2e-test-jwt-secret
+      JWT_ACCESS_EXPIRES: "3600"
+      JWT_REFRESH_EXPIRES: "604800"
+      FLASK_ENV: testing
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  fixtures:
+    build:
+      context: ./fixtures
+    container_name: browseshield-fixtures
+    ports:
+      - "9090:80"

