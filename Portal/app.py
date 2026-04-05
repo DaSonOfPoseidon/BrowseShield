@@ -17,8 +17,10 @@ def create_app():
         return User.query.get(int(user_id))
 
     from Portal.routes.auth import auth
+    from Portal.routes.debug import debug
 
     app.register_blueprint(auth)
+    app.register_blueprint(debug)
 
     @app.route("/")
     def index():
