@@ -27,12 +27,15 @@ jobs:
               apt-get install -y nodejs
             fi
 
-            # Install Playwright system dependencies (Chromium libs)
+            # Install Playwright system dependencies (Chromium libs + xvfb)
+            apt-get update -qq
+            apt-get install -y -qq xvfb
             cd /opt/BrowseShield/e2e
             npm install --silent
             npx playwright install --with-deps chromium
 
-            bash run.sh
+            # Use xvfb to provide a virtual display (extensions require headed mode)
+            xvfb-run --auto-servernum bash run.sh
 
       - name: Download reports from VPS
         if: always()
