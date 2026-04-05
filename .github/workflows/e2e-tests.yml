@@ -37,6 +37,10 @@ jobs:
             # Use xvfb to provide a virtual display (extensions require headed mode)
             xvfb-run --auto-servernum bash run.sh
 
+            # Package reports for download
+            cd /opt/BrowseShield/e2e
+            tar czf /tmp/e2e-reports.tar.gz reports/
+
       - name: Download reports from VPS
         if: always()
         uses: appleboy/scp-action@v0.1.7
@@ -45,9 +49,12 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          source: "/opt/BrowseShield/e2e/reports/*"
-          target: "./reports"
-          strip_components: 4
+          source: /tmp/e2e-reports.tar.gz
+          target: .
+
+      - name: Extract reports
+        if: always()
+        run: tar xzf /tmp/e2e-reports.tar.gz
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
