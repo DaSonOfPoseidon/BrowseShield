@@ -1,6 +1,7 @@
 {
   "name": "browseshield-e2e",
   "private": true,
+  "type": "module",
   "description": "End-to-end tests for BrowseShield extension → analysis → extension flow",
   "scripts": {
     "test": "npx playwright test",
