@@ -75,7 +75,8 @@ class AssessmentReporter {
     console.log("═".repeat(80));
 
     // Write JSON summary
-    const summaryPath = path.join(this.outputDir, "assessment-summary.json");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const summaryPath = path.join(this.outputDir, `assessment-summary-${ts}.json`);
     const summary = {
       run_timestamp: new Date().toISOString(),
       total: this.results.length,

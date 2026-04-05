@@ -70,8 +70,8 @@ npx playwright test || TEST_EXIT=$?
 echo -e "${YELLOW}[5/5] Done.${NC}"
 
 if [ "$TEST_EXIT" -ne 0 ]; then
-  echo -e "\n${RED}Some tests failed. See report: $SCRIPT_DIR/reports/html/index.html${NC}"
+  echo -e "\n${RED}Some tests failed. See reports: $SCRIPT_DIR/reports/${NC}"
   exit "$TEST_EXIT"
 fi
 
-echo -e "\n${GREEN}All tests passed! Report: $SCRIPT_DIR/reports/html/index.html${NC}"
+echo -e "\n${GREEN}All tests passed! Reports: $SCRIPT_DIR/reports/${NC}"
