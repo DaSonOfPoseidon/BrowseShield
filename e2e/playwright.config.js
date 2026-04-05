@@ -11,6 +11,7 @@ export default defineConfig({
     ["html", { open: "never", outputFolder: "./reports/html" }],
     ["json", { outputFile: "./reports/results.json" }],
     ["list"],
+    ["./tests/helpers/reporter.js"],
   ],
   use: {
     // Extensions require non-headless Chromium
