@@ -27,10 +27,15 @@ jobs:
               apt-get install -y nodejs
             fi
 
+            # Install Playwright system dependencies (Chromium libs)
             cd /opt/BrowseShield/e2e
+            npm install --silent
+            npx playwright install --with-deps chromium
+
             bash run.sh
 
       - name: Download reports from VPS
+        if: always()
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
