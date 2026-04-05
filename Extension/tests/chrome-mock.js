@@ -68,6 +68,11 @@ const chromeMock = {
   scripting: {
     executeScript: () => Promise.resolve(),
   },
+  alarms: {
+    create: () => {},
+    clear: () => {},
+    onAlarm: { addListener: () => {} },
+  },
 };
 
 export function installChromeMock() {

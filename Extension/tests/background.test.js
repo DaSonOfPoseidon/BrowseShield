@@ -9,6 +9,8 @@ const tabRemovedListeners = [];
 
 chrome.runtime.onMessage.addListener = (fn) => messageListeners.push(fn);
 chrome.runtime.onInstalled = { addListener: () => {} };
+chrome.runtime.onStartup = { addListener: () => {} };
+chrome.alarms.onAlarm = { addListener: () => {} };
 chrome.tabs.onRemoved.addListener = (fn) => tabRemovedListeners.push(fn);
 
 // Mock api module before importing background
@@ -25,6 +27,13 @@ vi.mock("../scripts/api.js", () => ({
     user: { id: "1", email: "user@test.com", name: "Test" },
   }),
   logout: vi.fn().mockResolvedValue({ message: "Logged out" }),
+  getTokenExpiry: vi.fn().mockResolvedValue(null),
+  clearToken: vi.fn().mockResolvedValue(undefined),
+  refreshAccessToken: vi.fn().mockResolvedValue({
+    access_token: "refreshed-token",
+    refresh_token: "refreshed-refresh",
+    expires_in: 900,
+  }),
 }));
 
 const api = await import("../scripts/api.js");

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Suspicious Mixed Signals</title>
+  <!-- Meta refresh triggers has_meta_refresh -->
+  <meta http-equiv="refresh" content="30;url=https://elsewhere.example.com">
+</head>
+<!-- Right-click disabled triggers right_click_disabled -->
+<body oncontextmenu="return false">
+  <h1>Special Offer - Act Now!</h1>
+  <p>This page contains a mix of suspicious indicators but is not overtly malicious. It has
+  enough content to avoid the thin-page rule but exhibits several concerning patterns that
+  real phishing pages commonly use.</p>
+
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+  ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+  laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+  <!-- 8 null links to trigger null_links_excessive (threshold > 5) -->
+  <nav>
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="javascript:void(0)">Link 3</a>
+    <a href="#">Link 4</a>
+    <a href="">Link 5</a>
+    <a href="#">Link 6</a>
+    <a href="javascript:void(0)">Link 7</a>
+    <a href="#">Link 8</a>
+  </nav>
+
+  <!-- External resources > 80% ratio triggers external_resource_ratio_high -->
+  <!-- 5 external out of 6 total = 83% -->
+  <img src="https://cdn.example.com/img1.png" alt="img1">
+  <img src="https://cdn.example.com/img2.png" alt="img2">
+  <img src="https://cdn.example.com/img3.png" alt="img3">
+  <script src="https://cdn.example.com/analytics.js"></script>
+  <link rel="stylesheet" href="https://cdn.example.com/styles.css">
+  <img src="/local-image.png" alt="local">
+</body>
+</html>
