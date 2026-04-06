@@ -115,6 +115,70 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .average-card {
+            margin: 30px auto 10px auto;
+            max-width: 500px;
+            background-color: #1e293b;
+            border-radius: 16px;
+            padding: 30px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .average-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            color: white;
+        }
+
+        .average-score {
+            font-size: 56px;
+            font-weight: bold;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+
+        .average-card p {
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .filter-container {
+            margin: 25px 0 10px 0;
+            text-align: center;
+        }
+
+        .filter-container form {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #1e293b;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-container label {
+            color: white;
+            font-weight: bold;
+        }
+
+        .filter-container select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            font-size: 14px;
+            background-color: #0f172a;
+            color: #cbd5e1;
+            outline: none;
+        }
+
+        .filter-container select:focus {
+            border-color: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +201,27 @@
         <div style="margin-top: 20px;">
             <a href="/wiki" class="wiki-btn">Safety Scores and Tips Wiki</a>
         </div>
-
+        <div class="average-card">
+            <h2>Average Safety Score</h2>
+            {% if average_score is not none %}
+                <div class="average-score">{{ "%.2f"|format(average_score * 100) }}%</div>
+                <p>Average Safety Score</p>
+            {% else %}
+                <div class="average-score">N/A</div>
+                <p>No scan data available yet</p>
+            {% endif %}
+        </div>
+        <div class="filter-container">
+            <form method="GET" action="/dashboard">
+                <label for="limit">Show:</label>
+                <select name="limit" id="limit" onchange="this.form.submit()">
+                    <option value="3" {% if selected_limit == "3" %}selected{% endif %}>3 most recent</option>
+                    <option value="5" {% if selected_limit == "5" %}selected{% endif %}>5 most recent</option>
+                    <option value="10" {% if selected_limit == "10" %}selected{% endif %}>10 most recent</option>
+                    <option value="all" {% if selected_limit == "all" %}selected{% endif %}>All scans</option>
+                </select>
+            </form>
+        </div>
         <h2 class="section-title">Recent Scan Results</h2>
 
         <div class="results-container">

@@ -60,7 +60,7 @@ def login():
                 flash("Could not connect to backend")
                 print("Backend connection error:", e)
 
-            #Test for token
+            #Test for token | still need to iron this out
             print("JWT:", session.get("jwt_token"))
             return redirect("/dashboard")
         else:
@@ -82,6 +82,9 @@ def logout():
 def dashboard():
     token = session.get("jwt_token")
     scans = []
+    average_score = None
+
+    limit = request.args.get("limit", "5")
 
     if token:
         try:
@@ -95,10 +98,18 @@ def dashboard():
 
             if response.status_code == 200:
                 scans = response.json()
+                if limit != "all":
+                    scans = scans[:int(limit)]
+                if scans:
+                    total = sum(item["score"] for item in scans if item.get("score") is not None)
+                    count = sum(1 for item in scans if item.get("score") is not None)
+
+                    if count > 0:
+                        average_score = round(total / count, 4)
             else:
                 print("Failed to fetch scan data:", response.text)
 
         except Exception as e:
             print("Error connecting to backend:", e)
 
-    return render_template("dashboard.html", email=current_user.email, scans=scans)
+    return render_template("dashboard.html", email=current_user.email, scans=scans, average_score=average_score, selected_limit=limit)
