@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ShopLocal — Wireless Bluetooth Headphones</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/index.html">Home</a>
+      <a href="/products.html">Products</a>
+      <a href="/deals.html">Deals</a>
+      <a href="/support.html">Support</a>
+      <a href="/account.html">My Account</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h1>Wireless Bluetooth Headphones — ProSound X200</h1>
+      <img src="/images/headphones-main.jpg" alt="ProSound X200 Wireless Headphones">
+
+      <p><strong>$79.99</strong> <del>$129.99</del> — 38% off</p>
+
+      <p>Experience premium audio with the ProSound X200 wireless headphones. Featuring active
+      noise cancellation, 40-hour battery life, and ultra-comfortable memory foam ear cushions.
+      Perfect for commuting, working from home, or enjoying your favorite music.</p>
+
+      <h2>Key Features</h2>
+      <ul>
+        <li>Active Noise Cancellation with transparency mode</li>
+        <li>Bluetooth 5.3 with multipoint connection</li>
+        <li>40-hour battery life (30 hours with ANC on)</li>
+        <li>USB-C fast charging — 10 minutes for 3 hours of playback</li>
+        <li>Foldable design with carrying case included</li>
+        <li>Built-in microphone with wind noise reduction</li>
+      </ul>
+
+      <h2>Specifications</h2>
+      <table>
+        <tr><td>Driver Size</td><td>40mm dynamic</td></tr>
+        <tr><td>Frequency Response</td><td>20Hz – 20kHz</td></tr>
+        <tr><td>Impedance</td><td>32 ohms</td></tr>
+        <tr><td>Weight</td><td>250g</td></tr>
+        <tr><td>Colors</td><td>Black, White, Navy Blue</td></tr>
+      </table>
+
+      <!-- Form submits to same origin — no external submission -->
+      <form action="/cart/add" method="POST">
+        <label for="color">Color:</label>
+        <select id="color" name="color">
+          <option value="black">Black</option>
+          <option value="white">White</option>
+          <option value="navy">Navy Blue</option>
+        </select>
+
+        <label for="qty">Quantity:</label>
+        <input type="number" id="qty" name="quantity" value="1" min="1" max="10">
+
+        <button type="submit">Add to Cart</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Customer Reviews</h2>
+      <p><strong>4.6 out of 5 stars</strong> (2,347 reviews)</p>
+
+      <blockquote>
+        <p>"Best headphones I've owned at this price point. The noise cancellation is surprisingly
+        good and battery life is incredible. Highly recommend for daily commuters."</p>
+        <footer>— Alex M., Verified Purchase</footer>
+      </blockquote>
+
+      <blockquote>
+        <p>"Comfortable for all-day wear. Sound quality is clear with good bass response. The
+        multipoint Bluetooth is a game changer for switching between laptop and phone."</p>
+        <footer>— Sarah K., Verified Purchase</footer>
+      </blockquote>
+    </section>
+  </main>
+
+  <footer>
+    <nav>
+      <a href="/about.html">About Us</a>
+      <a href="/shipping.html">Shipping Info</a>
+      <a href="/returns.html">Returns</a>
+      <a href="/privacy.html">Privacy</a>
+    </nav>
+    <p>&copy; 2025 ShopLocal Inc.</p>
+  </footer>
+</body>
+</html>

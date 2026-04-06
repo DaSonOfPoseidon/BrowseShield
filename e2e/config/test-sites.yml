@@ -9,11 +9,38 @@
 fixtures:
   base_url: "http://localhost:9090"
   sites:
+    # ── Safe fixtures (5) ──
+
     - path: "/safe-baseline.html"
       label: "Safe baseline — no suspicious indicators"
       expected_safety: "safe"
       assertion_mode: "exact"
       min_confidence: 80
+
+    - path: "/right-click-disabled.html"
+      label: "Borderline safe — right-click disabled, null links"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+
+    - path: "/safe-blog.html"
+      label: "Safe blog — article content, internal links only"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+      min_confidence: 80
+
+    - path: "/safe-ecommerce.html"
+      label: "Safe e-commerce — product page, same-origin form"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+      min_confidence: 80
+
+    - path: "/safe-documentation.html"
+      label: "Safe documentation — API docs, code blocks, anchor nav"
+      expected_safety: "safe"
+      assertion_mode: "exact"
+      min_confidence: 80
+
+    # ── Unsafe fixtures (3) ──
 
     - path: "/phishing-login-external.html"
       label: "Phishing — external login form, hidden iframes, external favicon"
@@ -21,16 +48,25 @@ fixtures:
       assertion_mode: "exact"
       min_confidence: 40
 
+    - path: "/unsafe-credential-harvest.html"
+      label: "Unsafe — thin page, external form, meta refresh, right-click disabled"
+      expected_safety: "unsafe"
+      assertion_mode: "exact"
+      min_confidence: 40
+
+    - path: "/unsafe-deceptive-overlay.html"
+      label: "Unsafe — hidden iframes, null links, high external resources, external form"
+      expected_safety: "unsafe"
+      assertion_mode: "exact"
+      min_confidence: 40
+
+    # ── Suspicious fixtures (1 + 1 IP access below) ──
+
     - path: "/suspicious-mixed.html"
       label: "Suspicious — meta refresh, null links, right-click disabled, external resources"
       expected_safety: "suspicious"
       assertion_mode: "exact"
       min_confidence: 40
-
-    - path: "/right-click-disabled.html"
-      label: "Borderline safe — right-click disabled, null links"
-      expected_safety: "safe"
-      assertion_mode: "exact"
 
   # Accessed via IP to trigger has_ip_address rule
   ip_access_sites:
@@ -39,18 +75,304 @@ fixtures:
       expected_safety: "suspicious"
       assertion_mode: "exact"
 
+# ── Live Sites ──
+# Safe sites use exact assertions; suspicious/unsafe candidates use smoke
+# to avoid flaky failures from dynamic content changes.
+
 live_sites:
+  # ── Search Engines ──
+
   - url: "https://www.google.com"
     label: "Google homepage"
     expected_safety: "safe"
-    assertion_mode: "smoke"
+    assertion_mode: "exact"
+
+  - url: "https://www.bing.com"
+    label: "Bing search"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://duckduckgo.com"
+    label: "DuckDuckGo"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.yahoo.com"
+    label: "Yahoo"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://search.brave.com"
+    label: "Brave Search"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Social Media ──
+
+  - url: "https://www.facebook.com"
+    label: "Facebook"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://x.com"
+    label: "X (Twitter)"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.linkedin.com"
+    label: "LinkedIn"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.reddit.com"
+    label: "Reddit"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.instagram.com"
+    label: "Instagram"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.pinterest.com"
+    label: "Pinterest"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.tiktok.com"
+    label: "TikTok"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Video & Streaming ──
+
+  - url: "https://www.youtube.com"
+    label: "YouTube"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.netflix.com"
+    label: "Netflix"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://open.spotify.com"
+    label: "Spotify"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.twitch.tv"
+    label: "Twitch"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── News ──
+
+  - url: "https://www.cnn.com"
+    label: "CNN"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.bbc.com"
+    label: "BBC"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.reuters.com"
+    label: "Reuters"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.npr.org"
+    label: "NPR"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://apnews.com"
+    label: "AP News"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.nytimes.com"
+    label: "New York Times"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Tech ──
+
+  - url: "https://github.com"
+    label: "GitHub"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://stackoverflow.com"
+    label: "Stack Overflow"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.microsoft.com"
+    label: "Microsoft"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.apple.com"
+    label: "Apple"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.mozilla.org"
+    label: "Mozilla"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.cloudflare.com"
+    label: "Cloudflare"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Shopping ──
+
+  - url: "https://www.amazon.com"
+    label: "Amazon"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.ebay.com"
+    label: "eBay"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.walmart.com"
+    label: "Walmart"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.target.com"
+    label: "Target"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.etsy.com"
+    label: "Etsy"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Finance ──
+
+  - url: "https://www.paypal.com"
+    label: "PayPal"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://stripe.com"
+    label: "Stripe"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.chase.com"
+    label: "Chase Bank"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Government ──
+
+  - url: "https://www.usa.gov"
+    label: "USA.gov"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.nasa.gov"
+    label: "NASA"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.cdc.gov"
+    label: "CDC"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Reference ──
 
   - url: "https://en.wikipedia.org"
     label: "Wikipedia"
     expected_safety: "safe"
-    assertion_mode: "smoke"
+    assertion_mode: "exact"
 
   - url: "https://example.com"
     label: "Example.com"
     expected_safety: "safe"
+    assertion_mode: "exact"
+
+  - url: "https://www.craigslist.org"
+    label: "Craigslist"
+    expected_safety: "safe"
+    assertion_mode: "exact"
+
+  # ── Suspicious Candidates (smoke — may trigger heuristic flags) ──
+
+  - url: "https://bit.ly"
+    label: "Suspicious — bit.ly URL shortener"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://tinyurl.com"
+    label: "Suspicious — TinyURL shortener"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://is.gd"
+    label: "Suspicious — is.gd URL shortener"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://rb.gy"
+    label: "Suspicious — rb.gy URL shortener"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://ow.ly"
+    label: "Suspicious — ow.ly URL shortener"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://abc.xyz"
+    label: "Suspicious TLD — abc.xyz (Alphabet)"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://www.speedtest.net"
+    label: "Suspicious candidate — speedtest.net (ad-heavy)"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://www.weather.com"
+    label: "Suspicious candidate — weather.com (tracker-heavy)"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://example.org"
+    label: "Suspicious candidate — example.org (minimal content)"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  - url: "https://www.freewebstore.org"
+    label: "Suspicious candidate — free hosting platform"
+    expected_safety: "suspicious"
+    assertion_mode: "smoke"
+
+  # ── Unsafe Candidates (smoke — may trigger unsafe classification) ──
+
+  - url: "https://testsafebrowsing.appspot.com"
+    label: "Unsafe candidate — Google Safe Browsing test page"
+    expected_safety: "unsafe"
+    assertion_mode: "smoke"
+
+  - url: "https://www.amtso.org/feature-settings-check/"
+    label: "Unsafe candidate — AMTSO feature settings check"
+    expected_safety: "unsafe"
+    assertion_mode: "smoke"
+
+  - url: "https://shadescreen.com"
+    label: "Unsafe candidate — phishing awareness demo"
+    expected_safety: "unsafe"
     assertion_mode: "smoke"
