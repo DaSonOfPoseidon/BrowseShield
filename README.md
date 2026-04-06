@@ -2,217 +2,123 @@
 
 **Email and Website Security Assessment Platform**
 
-A browser extension and web portal that provides real-time security assessments for websites and emails, helping users stay safe online with visual risk indicators, confidence scores, and historical safety tracking.
+A Chrome browser extension and web portal that provides real-time security assessments for websites and emails. Visual risk indicators, confidence scores, and historical safety tracking help users stay safe online.
 
 ---
 
-## Project Overview
+## Core Features
 
-### Core Features
-
-| Feature | Description |
-|---------|-------------|
-| **Risk Assessment Pop-up** | Visual indicator (green/yellow/red) with confidence score appears when visiting websites or opening emails |
-| **Web Dashboard** | Account holders view historical data, manage users, and monitor safety ratings |
-| **Multi-User Accounts** | Family/team structure—one Account Holder can create sub-user accounts (like streaming services) |
-| **Per-User Safety Ratings** | Aggregated safety score based on individual browsing and email history |
-| **Password Strength Checker** | Real-time feedback on password security in web forms |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Real-Time Site Assessment** | Extension scans pages and displays a risk ring (safe/suspicious/unsafe) with confidence score | Implemented |
+| **Email Scanning** | Extracts sender, subject, links, and attachments from Gmail and Outlook for threat analysis | Implemented |
+| **Web Dashboard** | Account holders view historical data and monitor safety ratings | In Progress |
+| **Multi-User Accounts** | Family/team structure — one Account Holder manages sub-user accounts | In Progress |
+| **Password Strength Checker** | Real-time feedback on password security via the Portal wiki page | Implemented |
 
 ### Stretch Goals
 
 - [ ] Real-time dashboard updates (WebSocket)
-- [ ] Parental controls & site blocking by user
+- [ ] Email scanning
 - [ ] Online security wiki/education section
 - [ ] Opt-in ad blocking
 
 ---
 
-## System Architecture
+## Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │                 │     │                 │     │                 │
-│  Browser        │────▶│  Backend API    │────▶│  Database       │
-│  Extension      │◀────│  Services       │◀────│                 │
+│  Browser        │────>│  Backend API    │────>│  Database        │
+│  Extension      │<────│  (Flask)        │<────│  (PostgreSQL)    │
 │                 │     │                 │     │                 │
 └─────────────────┘     └────────┬────────┘     └─────────────────┘
                                  │
-                                 ▼
-                        ┌─────────────────┐
+                        ┌────────┴────────┐
                         │                 │
-                        │  ML/Scoring     │
+                        │  ML / Detection │
                         │  Engine         │
                         │                 │
-                        └─────────────────┘
+                        └────────┬────────┘
                                  │
 ┌─────────────────┐              │
 │                 │              │
-│  Web Portal     │◀─────────────┘
-│  Dashboard      │
+│  Web Portal     │<─────────────┘
+│  (Flask)        │
 │                 │
 └─────────────────┘
 ```
 
 ### Components
 
-| Component | Description | Owner |
-|-----------|-------------|-------|
-| Browser Extension | Chrome/Edge/Firefox extension for real-time site assessment | Jackson |
-| Web Portal | React/Vue dashboard for account management and history | Dane |
-| Backend API | RESTful API services, auth, data layer | Mike |
-| Threat Detection | URL analysis, phishing heuristics, reputation checking | Andy |
-| ML Scoring Engine | Risk models, confidence scoring, anomaly detection | Mike |
+| Component | Tech | Owner | Details |
+|-----------|------|-------|---------|
+| [Browser Extension](Extension/) | JavaScript, Chrome MV3 | Jackson | Real-time site/email scanning, risk popup, auth |
+| [Web Portal](Portal/) | Python/Flask, Jinja2 | Dane | Dashboard, user management, wiki |
+| [Backend API](Backend/) | Python/Flask, PostgreSQL | Mike | REST API, auth, assessment pipeline |
+| [Threat Detection](Detection/) | Python | Andy | URL analysis, phishing heuristics, feature extraction |
+| [ML Scoring Engine](ML/) | Python, scikit-learn | Mike | Risk classification model, confidence scoring |
+| [E2E Tests](e2e/) | Playwright, Docker | Jackson | Full-stack browser testing with fixture pages |
+| [Database](Data/) | PostgreSQL 16 | Mike | Schema definitions |
 
 ---
 
-## Repository Structure
+## Tech Stack
 
-```
-Capstone Project/
-├── README.md                 # This file
-│
-├── Extension/                # Browser extension (Jackson)
-│   ├── README.md
-│   ├── manifest.json
-│   ├── src/
-│   └── docs/
-│
-├── Portal/                   # Web dashboard (Dane)
-│   ├── README.md
-│   ├── src/
-│   └── public/
-│
-├── Backend/                  # API services (Mike)
-│   ├── README.md
-│   ├── src/
-│   ├── migrations/
-│   └── tests/
-│
-├── Detection/                # Threat detection (Andy)
-│   ├── README.md
-│   ├── src/
-│   ├── rules/
-│   └── data/
-│
-├── ML/                       # Scoring models (Mike)
-│   ├── README.md
-│   ├── models/
-│   ├── notebooks/
-│   └── evaluation/
-│
-└── docs/                     # Shared documentation
-    ├── api-spec.md
-    ├── architecture.md
-    └── security.md
+| Layer | Technology |
+|-------|------------|
+| Extension | JavaScript (Manifest V3, Chrome) |
+| Portal | Python / Flask / Jinja2 |
+| Backend API | Python / Flask / gunicorn |
+| Database | PostgreSQL 16 |
+| ML | scikit-learn, joblib |
+| Testing | Vitest (unit), Playwright (E2E) |
+| Deployment | Docker Compose, GitHub Actions |
+| Hosting | VPS via Hostinger|
+
+---
+
+## Quick Start
+
+### Docker (full stack)
+
+```bash
+cp .env.example .env    # Configure database credentials, JWT secret
+docker compose up -d     # Starts portal (:3000), backend (:8000), db (:5432)
 ```
 
----
+### Extension
 
-## Risk Scoring System
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `Extension/` directory
 
-### Risk Levels
+### E2E Tests
 
-| Level | Color | Indicator | Description |
-|-------|-------|-----------|-------------|
-| Safe | 🟢 Green | `#22C55E` | Known trusted domain, verified sender |
-| Uncertain | 🟡 Yellow | `#F59E0B` | New/unknown, insufficient data |
-| Suspicious | 🟠 Orange | `#F97316` | Some red flags detected |
-| Malicious | 🔴 Red | `#EF4444` | Known threat, blocklist match |
-
-### Confidence Score
-
-- Scale: 0-100%
-- Factors: Data availability, signal strength, model certainty
-- Display: Percentage or 5-star rating (TBD)
-
----
-
-## API Overview
-
-### Extension Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/assess/url` | Submit URL for risk assessment |
-| `POST` | `/api/v1/assess/email` | Submit email metadata for assessment |
-| `GET` | `/api/v1/reputation/{domain}` | Get cached domain reputation |
-
-### Portal Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/auth/login` | Account holder authentication |
-| `POST` | `/api/v1/auth/register` | New account registration |
-| `GET` | `/api/v1/users` | List sub-users for account |
-| `POST` | `/api/v1/users` | Create sub-user |
-| `GET` | `/api/v1/history/{userId}` | Get browsing/email history |
-| `GET` | `/api/v1/stats/{userId}` | Get safety rating & stats |
-
-### Device Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/devices/register` | Link extension to user account |
-| `DELETE` | `/api/v1/devices/{deviceId}` | Unlink device |
-
----
-
-## Tech Stack (Proposed)
-
-| Layer | Technology | Notes |
-|-------|------------|-------|
-| Extension | JavaScript | Manifest V3 (cross-browser) |
-| Portal Frontend | TBD | Dane's call |
-| Backend API | Node.js/Express or Python/FastAPI | TBD |
-| Database | PostgreSQL | Relational, ACID and JSONB |
-| Cache | Redis | Session storage, rate limiting |
-| ML | TBD | TBD |
-| Hosting | TBD | AWS, GCP, self-hosted |
-
----
-
-## Development Workflow
-
-### Branch Strategy
-
-```
-main              # Production-ready code
-├── develop       # Integration branch
-├── feature/*     # New features
-└── bugfix/*      # Bug fixes
+```bash
+cd e2e && ./run.sh
 ```
 
-### Pull Request Process
-
-1. Create feature branch from `develop`
-2. Implement feature with tests
-3. Open PR with description and screenshots
-4. Code review by at least one team member
-5. Merge to `develop` after approval
-
-### Communication
-
-- **Weekly Sync:** Tuesday 6pm
-- **Async Updates:** MAD J Discord
-- **Documentation:** Update relevant README when adding features
+See [e2e/README.md](e2e/README.md) for details. Reports are viewable in the Portal at `/debug/e2e/results`.
 
 ---
 
-## Resources
+## CI/CD
 
-- [Chrome Extension Docs (MV3)](https://developer.chrome.com/docs/extensions/mv3/)
-- [OWASP Security Guidelines](https://owasp.org/www-project-web-security-testing-guide/)
-- [PhishTank API](https://phishtank.org/developer_info.php)
-- [Google Safe Browsing API](https://developers.google.com/safe-browsing)
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `deploy.yml` | Push to `main` | SSH to VPS, build & deploy Docker stack, run health checks |
+| `e2e-tests.yml` | Push to `testing/auto-browser` or manual | Run Playwright E2E suite on VPS, upload report artifacts |
 
 ---
 
 ## Course Information
 
-**Course:** IT4970W – Capstone Project
+**Course:** IT4970W - Capstone Project
 **Term:** Spring 2026
 **Team:** Dane (Lead), Andy, Mike, Jackson
 
 ---
 
-*Last Updated: February 2026*
+*Last Updated: April 2026*
