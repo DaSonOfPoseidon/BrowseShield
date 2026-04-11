@@ -5,19 +5,25 @@ predictor.py
 Runs machine learning inference for phishing detection.
 """
 
+import logging
+
 import numpy as np
 
 from ML.model_loader import model
 
+logger = logging.getLogger(__name__)
 
-# Feature order MUST match the dataset used to train the model
+
+# Feature order MUST match the dataset used to train the model.
+# Dropped from original 30: web_traffic, Page_Rank, Google_Index,
+# Statistical_report (no runtime data source), Prefix_Suffix (training
+# data makes it toxic — all legit samples are -1, so model treats 1 as phishing).
 FEATURE_ORDER = [
     "having_IP_Address",
     "URL_Length",
     "Shortining_Service",
     "having_At_Symbol",
     "double_slash_redirecting",
-    "Prefix_Suffix",
     "having_Sub_Domain",
     "SSLfinal_State",
     "Domain_registeration_length",
@@ -37,11 +43,7 @@ FEATURE_ORDER = [
     "Iframe",
     "age_of_domain",
     "DNSRecord",
-    "web_traffic",
-    "Page_Rank",
-    "Google_Index",
     "Links_pointing_to_page",
-    "Statistical_report"
 ]
 
 
@@ -53,6 +55,8 @@ def build_feature_vector(features):
     vector = []
 
     for feature in FEATURE_ORDER:
+        if feature not in features:
+            logger.warning("Feature '%s' missing from input, defaulting to 0", feature)
         value = float(features.get(feature, 0))
         vector.append(value)
 
@@ -73,7 +77,4 @@ def predict_phishing(features):
 
     phishing_probability = model.predict_proba(feature_vector)[0][1]
 
-    return {
-        "prediction": int(prediction),
-        "probability": float(phishing_probability)
-    }
+    return {"prediction": int(prediction), "probability": float(phishing_probability)}

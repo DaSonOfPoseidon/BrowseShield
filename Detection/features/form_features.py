@@ -107,4 +107,26 @@ def extract_form_features(page_data, url=None):
     # Redirect: based on meta refresh or excessive redirects
     features["Redirect"] = -1 if security.get("hasMetaRefresh") else 1
 
+    # SSLfinal_State: HTTPS presence (1=HTTPS/legit, -1=no HTTPS/phishing)
+    meta = page_data.get("meta", {})
+    is_https = meta.get("isHttps")
+    if is_https is True:
+        features["SSLfinal_State"] = 1
+    elif is_https is False:
+        features["SSLfinal_State"] = -1
+    else:
+        features["SSLfinal_State"] = 0
+
+    # Favicon: external favicon signals phishing
+    features["Favicon"] = -1 if security.get("faviconExternal") else 1
+
+    # Links_pointing_to_page: proxy via on-page link count (site complexity)
+    total_link_count = links.get("total", 0)
+    if total_link_count >= 50:
+        features["Links_pointing_to_page"] = 1
+    elif total_link_count >= 10:
+        features["Links_pointing_to_page"] = 0
+    else:
+        features["Links_pointing_to_page"] = -1
+
     return features
