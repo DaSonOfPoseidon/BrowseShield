@@ -101,7 +101,7 @@ def dashboard():
                 if limit != "all":
                     scans = scans[:int(limit)]
                 if scans:
-                    total = sum(item["score"] for item in scans if item.get("score") is not None)
+                    total = sum((1 - item["score"]) for item in scans if item.get("score") is not None)
                     count = sum(1 for item in scans if item.get("score") is not None)
 
                     if count > 0:
