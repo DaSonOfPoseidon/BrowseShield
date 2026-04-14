@@ -120,13 +120,11 @@ def extract_form_features(page_data, url=None):
     # Favicon: external favicon signals phishing
     features["Favicon"] = -1 if security.get("faviconExternal") else 1
 
-    # Links_pointing_to_page: proxy via on-page link count (site complexity)
-    total_link_count = links.get("total", 0)
-    if total_link_count >= 50:
-        features["Links_pointing_to_page"] = 1
-    elif total_link_count >= 10:
-        features["Links_pointing_to_page"] = 0
-    else:
-        features["Links_pointing_to_page"] = -1
+    # Links_pointing_to_page: always 0 (neutral/unknown).
+    # The UCI training feature measures inbound backlinks (site authority),
+    # but we only have outgoing DOM link counts at runtime. Using outgoing
+    # links as a proxy created a train/inference mismatch that penalised
+    # minimal login pages and rewarded content-heavy phish pages.
+    features["Links_pointing_to_page"] = 0
 
     return features
