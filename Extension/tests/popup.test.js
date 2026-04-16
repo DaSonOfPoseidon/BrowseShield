@@ -114,6 +114,9 @@ const {
   handleScanUpdate,
   showStatus,
   renderEntry,
+  renderReasons,
+  loadPortalBase,
+  DEFAULT_PORTAL_BASE,
 } = popup;
 
 beforeEach(() => {
@@ -340,5 +343,67 @@ describe("renderSuspiciousLinks", () => {
     expect(list.hidden).toBe(false);
     toggle.click();
     expect(list.hidden).toBe(true);
+  });
+});
+
+// ── renderReasons (wiki links) ──
+
+describe("renderReasons", () => {
+  it("renders {text, anchor} reasons as <a> links to the wiki section", async () => {
+    await loadPortalBase();
+    renderReasons([
+      { text: "URL uses an IP address instead of a domain name", anchor: "has-ip-address" },
+      { text: "Site does not use HTTPS", anchor: "https-absent" },
+    ]);
+
+    const items = document.querySelectorAll("#reasons-list li");
+    expect(items.length).toBe(2);
+
+    const firstLink = items[0].querySelector("a");
+    expect(firstLink).toBeTruthy();
+    expect(firstLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#has-ip-address`);
+    expect(firstLink.getAttribute("target")).toBe("_blank");
+    expect(firstLink.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(firstLink.textContent).toBe("URL uses an IP address instead of a domain name");
+
+    const secondLink = items[1].querySelector("a");
+    expect(secondLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#https-absent`);
+  });
+
+  it("renders a plain <li> with no <a> when reason is a legacy string (backward compat)", () => {
+    renderReasons(["Legacy reason string"]);
+    const items = document.querySelectorAll("#reasons-list li");
+    expect(items.length).toBe(1);
+    expect(items[0].querySelector("a")).toBeNull();
+    expect(items[0].textContent).toBe("Legacy reason string");
+  });
+
+  it("renders a plain <li> when anchor is missing or null", () => {
+    renderReasons([{ text: "No anchor here", anchor: null }]);
+    const li = document.querySelector("#reasons-list li");
+    expect(li.querySelector("a")).toBeNull();
+    expect(li.textContent).toBe("No anchor here");
+  });
+
+  it("honors portal_base_url override from chrome.storage.local", async () => {
+    await chrome.storage.local.set({ portal_base_url: "http://localhost:3000" });
+    await loadPortalBase();
+
+    renderReasons([{ text: "Login form detected", anchor: "has-password-field" }]);
+    const link = document.querySelector("#reasons-list a");
+    expect(link.getAttribute("href")).toBe("http://localhost:3000/wiki#has-password-field");
+  });
+
+  it("reveals the reasons-section when any reason is rendered", () => {
+    expect(document.getElementById("reasons-section").hidden).toBe(true);
+    renderReasons([{ text: "A reason", anchor: "has-ip-address" }]);
+    expect(document.getElementById("reasons-section").hidden).toBe(false);
+  });
+
+  it("does nothing when reasons is empty or missing", () => {
+    renderReasons([]);
+    expect(document.getElementById("reasons-section").hidden).toBe(true);
+    renderReasons(undefined);
+    expect(document.getElementById("reasons-section").hidden).toBe(true);
   });
 });

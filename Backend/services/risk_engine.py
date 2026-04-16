@@ -30,28 +30,30 @@ from datetime import datetime, timezone
 
 
 # Scoring weights — tuned so a "definitely phishing" page approaches 1.0
+# Each rule: (rule_key, weight, reason_text, wiki_anchor)
+# wiki_anchor is kebab-case of rule_key; deep-links to a subheading on the Portal /wiki page.
 RULES = [
-    ("has_ip_address",                 0.20, "URL uses an IP address instead of a domain name"),
-    ("has_at_symbol",                  0.15, "URL contains @ symbol — possible redirect trick"),
-    ("brand_in_subdomain",             0.20, "URL subdomain impersonates a known brand"),
-    ("has_punycode",                   0.15, "Domain uses internationalized characters (possible homograph)"),
-    ("password_form_submits_external", 0.20, "Login form submits credentials to a different domain"),
-    ("suspicious_tld",                 0.10, "Domain uses a TLD commonly associated with phishing"),
-    ("has_port",                       0.08, "URL contains a non-standard port number"),
-    ("num_subdomains_excessive",       0.10, "URL has excessive subdomains"),
-    ("hyphen_count_excessive",         0.08, "Domain contains many hyphens"),
-    ("https_absent",                   0.05, "Site does not use HTTPS"),
-    ("url_length_excessive",           0.05, "Unusually long URL"),
-    ("uses_shortening_service",        0.10, "URL uses a link shortening service"),
-    ("excessive_url_encoding",         0.08, "URL contains excessive percent-encoding"),
-    ("has_password_field",             0.05, "Page contains a login form"),
-    ("favicon_is_external",            0.10, "Page favicon loaded from external domain"),
-    ("hidden_iframes",                 0.10, "Page contains hidden iframes"),
-    ("right_click_disabled",           0.08, "Page disables right-click (prevents inspection)"),
-    ("null_links_excessive",           0.08, "Many non-functional links on page"),
-    ("thin_page_with_login",           0.10, "Thin page with login form (minimal content)"),
-    ("has_meta_refresh",               0.08, "Page uses auto-redirect"),
-    ("external_resource_ratio_high",   0.08, "Most page resources loaded from external domains"),
+    ("has_ip_address",                 0.20, "URL uses an IP address instead of a domain name",        "has-ip-address"),
+    ("has_at_symbol",                  0.15, "URL contains @ symbol — possible redirect trick",        "has-at-symbol"),
+    ("brand_in_subdomain",             0.20, "URL subdomain impersonates a known brand",               "brand-in-subdomain"),
+    ("has_punycode",                   0.15, "Domain uses internationalized characters",               "has-punycode"),
+    ("password_form_submits_external", 0.20, "Login form submits credentials to a different domain",   "password-form-submits-external"),
+    ("suspicious_tld",                 0.10, "Domain uses a TLD commonly associated with phishing",    "suspicious-tld"),
+    ("has_port",                       0.08, "URL contains a non-standard port number",                "has-port"),
+    ("num_subdomains_excessive",       0.10, "URL has excessive subdomains",                           "num-subdomains-excessive"),
+    ("hyphen_count_excessive",         0.08, "Domain contains many hyphens",                           "hyphen-count-excessive"),
+    ("https_absent",                   0.05, "Site does not use HTTPS",                                "https-absent"),
+    ("url_length_excessive",           0.05, "Unusually long URL",                                     "url-length-excessive"),
+    ("uses_shortening_service",        0.10, "URL uses a link shortening service",                     "uses-shortening-service"),
+    ("excessive_url_encoding",         0.08, "URL contains excessive percent-encoding",                "excessive-url-encoding"),
+    ("has_password_field",             0.05, "Page contains a login form",                             "has-password-field"),
+    ("favicon_is_external",            0.10, "Page favicon loaded from external domain",               "favicon-is-external"),
+    ("hidden_iframes",                 0.10, "Page contains hidden iframes",                           "hidden-iframes"),
+    ("right_click_disabled",           0.08, "Page disables right-click (prevents inspection)",        "right-click-disabled"),
+    ("null_links_excessive",           0.08, "Many non-functional links on page",                      "null-links-excessive"),
+    ("thin_page_with_login",           0.10, "Thin page with login form (minimal content)",            "thin-page-with-login"),
+    ("has_meta_refresh",               0.08, "Page uses auto-redirect",                                "has-meta-refresh"),
+    ("external_resource_ratio_high",   0.08, "Most page resources loaded from external domains",       "external-resource-ratio-high"),
 ]
 
 
@@ -62,11 +64,11 @@ def evaluate_risk(features):
     fired = 0
     total_checked = len(RULES)
 
-    for rule_key, weight, reason in RULES:
+    for rule_key, weight, reason, anchor in RULES:
         value = features.get(rule_key, 0)
         if value:
             score += weight
-            reasons.append(reason)
+            reasons.append({"text": reason, "anchor": anchor})
             fired += 1
 
     score = round(min(score, 1.0), 3)

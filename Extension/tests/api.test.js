@@ -196,7 +196,7 @@ describe("assessEmail (stub)", () => {
     expect(result.phishingIndicators).toHaveProperty("suspiciousAttachments");
   });
 
-  it("reasons is an array of strings", async () => {
+  it("reasons is an array of {text, anchor} objects", async () => {
     const result = await assessEmail({
       sender: { name: "Test", address: "test@example.com" },
       subject: "Test",
@@ -206,7 +206,10 @@ describe("assessEmail (stub)", () => {
     });
     expect(Array.isArray(result.reasons)).toBe(true);
     for (const reason of result.reasons) {
-      expect(typeof reason).toBe("string");
+      expect(typeof reason).toBe("object");
+      expect(typeof reason.text).toBe("string");
+      // anchor is either a non-empty string (URL rules) or null (email stub / not-yet-mapped)
+      expect(reason.anchor === null || typeof reason.anchor === "string").toBe(true);
     }
   });
 });

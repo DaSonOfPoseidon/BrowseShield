@@ -2,6 +2,7 @@
 // All backend communication goes through this module.
 
 const DEFAULT_API_BASE = "https://api.browseshield.dev/v1";
+export const DEFAULT_PORTAL_BASE = "https://browseshield.dev";
 
 // When true, endpoint functions return mock data instead of making real requests.
 let USE_STUBS = false;
@@ -27,6 +28,24 @@ async function getApiBase() {
 // Allow re-reading storage (e.g. after settings change)
 export function clearApiBaseCache() {
   _cachedApiBase = null;
+}
+
+// Resolved at call time — use getPortalBase() instead of a constant.
+let _cachedPortalBase = null;
+
+export async function getPortalBase() {
+  if (_cachedPortalBase) return _cachedPortalBase;
+  try {
+    const { portal_base_url } = await chrome.storage.local.get("portal_base_url");
+    _cachedPortalBase = portal_base_url || DEFAULT_PORTAL_BASE;
+  } catch {
+    _cachedPortalBase = DEFAULT_PORTAL_BASE;
+  }
+  return _cachedPortalBase;
+}
+
+export function clearPortalBaseCache() {
+  _cachedPortalBase = null;
 }
 
 // --- ApiError ---
@@ -192,8 +211,8 @@ const STUBS = {
     safety: "suspicious",
     confidence: 72,
     reasons: [
-      "Page contains a login form",
-      "Multiple external links detected",
+      { text: "Page contains a login form", anchor: "has-password-field" },
+      { text: "Multiple external links detected", anchor: "external-resource-ratio-high" },
     ],
     assessed_at: new Date().toISOString(),
   },
@@ -201,9 +220,9 @@ const STUBS = {
     safety: "suspicious",
     confidence: 65,
     reasons: [
-      "Sender domain does not match display name",
-      "Email contains urgency language",
-      "Link text does not match destination URL",
+      { text: "Sender domain does not match display name", anchor: null },
+      { text: "Email contains urgency language", anchor: null },
+      { text: "Link text does not match destination URL", anchor: null },
     ],
     phishingIndicators: {
       senderMismatch: true,
