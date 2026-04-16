@@ -24,13 +24,17 @@ def get_user_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+    from datetime import datetime
+
     data = []
     for row in rows:
+        formatted_time = row[3].strftime("%b %d, %Y at %I:%M %p")
+
         data.append({
             "url": row[0],
             "score": row[1],
             "classification": row[2],
-            "timestamp": row[3],
+            "timestamp": formatted_time,
         })
 
     return jsonify(data)
