@@ -229,7 +229,7 @@
                 {% for item in scans %}
                     <div class="scan-card">
                         <p><strong>URL:</strong> {{ item.url }}</p>
-                        <p><strong>Score:</strong> {{ item.score }}</p>
+                        <p><strong>Phishing Score:</strong> {{ item.score }}</p>
                         <p>
                             <strong>Classification:</strong>
                             <span class="{{ item.classification|lower }}">{{ item.classification }}</span>
