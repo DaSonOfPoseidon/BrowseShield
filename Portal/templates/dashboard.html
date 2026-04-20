@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BrowseShield Dashboard</title>
     <style>
         body {
@@ -12,33 +13,46 @@
 
         .topbar {
             width: 100%;
-            padding: 20px;
+            padding: 20px 24px;
             background-color: #0B1F33;
             box-sizing: border-box;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .brand {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
 
         .brand img {
             margin-right: 10px;
+            width: 40px;
+            height: auto;
         }
 
         .logout-btn,
         .wiki-btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             color: white;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             border: none;
             cursor: pointer;
-            font-size: inherit;
+            font-size: 16px;
+            white-space: nowrap;
         }
 
         .logout-btn {
@@ -59,6 +73,7 @@
             margin: 60px auto;
             max-width: 1000px;
             padding: 0 20px;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -92,6 +107,7 @@
         .scan-card p {
             margin: 8px 0;
             color: white;
+            word-break: break-word;
         }
 
         .safe {
@@ -164,13 +180,14 @@
         .filter-container label {
             color: white;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .filter-container select {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 6px;
             border: 1px solid #334155;
-            font-size: 14px;
+            font-size: 16px;
             background-color: #0f172a;
             color: #cbd5e1;
             outline: none;
@@ -179,18 +196,111 @@
         .filter-container select:focus {
             border-color: #94a3b8;
         }
+
+        @media (max-width: 768px) {
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+            }
+
+            .brand {
+                justify-content: center;
+            }
+
+            .brand img {
+                width: 42px;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .topbar-actions form {
+                width: 100%;
+                margin: 0;
+            }
+
+            .logout-btn,
+            .wiki-btn {
+                width: 100%;
+                text-align: center;
+                font-size: 18px;
+                padding: 14px 16px;
+                box-sizing: border-box;
+            }
+
+            .container {
+                margin: 40px auto;
+                padding: 0 16px;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+
+            .average-card {
+                padding: 24px 16px;
+            }
+
+            .average-card h2 {
+                font-size: 24px;
+            }
+
+            .average-score {
+                font-size: 46px;
+            }
+
+            .filter-container form {
+                width: 100%;
+                max-width: 340px;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 16px;
+                box-sizing: border-box;
+            }
+
+            .filter-container label {
+                font-size: 18px;
+                text-align: left;
+            }
+
+            .filter-container select {
+                width: 100%;
+                font-size: 18px;
+                padding: 14px;
+                box-sizing: border-box;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .scan-card {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="topbar">
         <div class="brand">
-            <img src="{{ url_for('static', filename='logo.png') }}" width="40">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="BrowseShield Logo">
             <span style="font-size:20px; font-weight:bold;">BrowseShield</span>
         </div>
 
-        <form action="/logout" method="POST" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
+        <div class="topbar-actions">
+            <a href="/wiki" class="wiki-btn">Wiki</a>
+    
+            <form action="/logout" method="POST" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
     </div>
 
     <div class="container">
@@ -198,9 +308,6 @@
         <p>Welcome to BrowseShield</p>
         <p>Logged in as: {{ email if email else "User" }}</p>
 
-        <div style="margin-top: 20px;">
-            <a href="/wiki" class="wiki-btn">Safety Scores and Tips Wiki</a>
-        </div>
         <div class="average-card">
             <h2>Average Safety Score</h2>
             {% if average_score is not none %}
