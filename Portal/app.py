@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from Portal.config import Config
 from Portal.models import db, User
-from Portal.utils.extensions import bcrypt, login_manager, csrf
+from Portal.utils.extensions import bcrypt, login_manager, csrf, limiter
 
 def create_app():
     app = Flask(__name__)
@@ -11,6 +11,7 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    limiter.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):

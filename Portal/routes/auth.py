@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from Portal.models import db, User
-from Portal.utils.extensions import bcrypt
+from Portal.utils.extensions import bcrypt, limiter
 from flask_login import login_user, logout_user, login_required, current_user
 import requests
 
 auth = Blueprint("auth", __name__)
 
 @auth.route("/register", methods=["GET", "POST"])
+@limiter.limit("3 per minute", methods=["POST"])
 def register():
     if request.method == "POST":
         email = request.form.get("email")
@@ -30,6 +31,7 @@ def register():
     return render_template("register.html")
 
 @auth.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email")
