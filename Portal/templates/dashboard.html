@@ -297,7 +297,8 @@
         <div class="topbar-actions">
             <a href="/wiki" class="wiki-btn">Wiki</a>
     
-            <form action="/logout" method="POST" style="display:inline;">
+            <form action="{{ url_for('auth.logout') }}" method="POST" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="logout-btn">Logout</button>
             </form>
         </div>
