@@ -7,50 +7,65 @@ Performs domain-level security checks used for phishing detection.
 import socket
 import whois
 from urllib.parse import urlparse
-from datetime import datetime
-
+from datetime import datetime, timezone
 
 def extract_domain_features(url):
+    """
+    Extract domain-based phishing indicators.
+    """
+
     features = {}
     domain = urlparse(url).netloc
 
-    # DNS
+    # ==============================
+    # DNS Check
+    # ==============================
     features["dns_record"] = check_dns_record(domain)
 
-    # WHOIS (single call)
+    # ==============================
+    # WHOIS Lookup (single call)
+    # ==============================
     try:
         w = whois.whois(domain)
 
         creation_date = w.creation_date
         expiration_date = w.expiration_date
 
+        # Handle list responses
         if isinstance(creation_date, list):
             creation_date = creation_date[0]
         if isinstance(expiration_date, list):
             expiration_date = expiration_date[0]
 
-        # Domain age
+        # Normalize timezone
+        now = datetime.now(timezone.utc)
+
         if creation_date:
-            age_days = (datetime.now() - creation_date).days
+            if creation_date.tzinfo is None:
+                creation_date = creation_date.replace(tzinfo=timezone.utc)
+
+            age_days = (now - creation_date).days
+
+            # New domains are suspicious
             features["domain_age"] = -1 if age_days < 180 else 1
         else:
             features["domain_age"] = -1
 
-        # Expiration
         if expiration_date:
-            remaining_days = (expiration_date - datetime.now()).days
+            if expiration_date.tzinfo is None:
+                expiration_date = expiration_date.replace(tzinfo=timezone.utc)
+
+            remaining_days = (expiration_date - now).days
+
+            # Short registration period is suspicious
             features["domain_validity"] = -1 if remaining_days < 365 else 1
         else:
             features["domain_validity"] = -1
 
     except Exception:
+        # Fallback values if WHOIS fails
         features["domain_age"] = -1
         features["domain_validity"] = -1
-
-    # Placeholder reputation features (optional)
-    features["web_traffic"] = -1
-    features["page_rank"] = -1
-    features["google_index"] = -1
 
     return features
 
@@ -64,53 +79,4 @@ def check_dns_record(domain):
         socket.gethostbyname(domain)
         return 1
     except socket.error:
-        return -1
-
-
-def check_domain_age(domain):
-    """
-    Determine if the domain is newly registered.
-    """
-
-    try:
-        w = whois.whois(domain)
-
-        creation_date = w.creation_date
-
-        if isinstance(creation_date, list):
-            creation_date = creation_date[0]
-
-        age_days = (datetime.now() - creation_date).days
-
-        # phishing domains are often very new
-        if age_days < 180:
-            return -1
-        else:
-            return 1
-
-    except Exception:
-        return -1
-
-
-def check_domain_expiration(domain):
-    """
-    Determine whether the domain has a short registration period.
-    """
-
-    try:
-        w = whois.whois(domain)
-
-        expiration_date = w.expiration_date
-
-        if isinstance(expiration_date, list):
-            expiration_date = expiration_date[0]
-
-        remaining_days = (expiration_date - datetime.now()).days
-
-        if remaining_days < 365:
-            return -1
-        else:
-            return 1
-
-    except Exception:
         return -1

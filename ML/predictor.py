@@ -7,7 +7,6 @@ Runs machine learning inference for phishing detection.
 
 import numpy as np
 
-from Backend.ml.model_loader import model
 from Backend.config.feature_order import FEATURE_ORDER
 from ML.model_loader import model
 

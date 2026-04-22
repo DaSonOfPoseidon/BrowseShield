@@ -6,40 +6,12 @@ import joblib
 
 from Detection.features.feature_extractor import extract_features
 from collections import Counter
-# Load dataset
-df = pd.read_csv("ML/datasets/phishing_training_data.csv")
-
-FEATURE_ORDER = [
-    "having_IP_Address",
-    "URL_Length",
-    "Shortining_Service",
-    "having_At_Symbol",
-    "double_slash_redirecting",
-    "Prefix_Suffix",
-    "having_Sub_Domain",
-    "HTTPS_token",
-    "port",
-    "Abnormal_URL",
-
-    # domain placeholders
-    "domain_age",
-    "dns_record",
-    "domain_validity",
-    "domain_length",
-
-    "suspicious_keyword_count",
-    "url_encoding_count",
-    "hyphen_count",
-    "suspicious_tld",
-    "digit_ratio",
-    "digit_count"
-
-]
+from Backend.config.feature_order import FEATURE_ORDER
 
 # ==============================
 # LOAD DATASET
 # ==============================
-df = pd.read_csv("Backend/datasets/final_dataset.csv")
+df = pd.read_csv("ML/datasets/final_dataset.csv")
 
 # Clean dataset
 df = df.dropna(subset=["url"])
@@ -48,8 +20,10 @@ df = df[df["url"].astype(str).str.strip() != ""]
 # ==============================
 # BALANCE DATASET
 # ==============================
-safe_df = df[df["label"] == 0].sample(30000, random_state=42)
-phish_df = df[df["label"] == 1].sample(30000, random_state=42)
+sample_size = min(30000, len(df[df["label"] == 0]), len(df[df["label"] == 1]))
+
+safe_df = df[df["label"] == 0].sample(sample_size, random_state=42)
+phish_df = df[df["label"] == 1].sample(sample_size, random_state=42)
 
 df = pd.concat([safe_df, phish_df]).sample(frac=1).reset_index(drop=True)
 
@@ -84,7 +58,8 @@ X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
     test_size=0.2,
-    random_state=42
+    random_state=42,
+    stratify=y
 )
 
 # ==============================
@@ -116,13 +91,11 @@ print(classification_report(y_test, predictions))
 
 print("\n[CONFUSION MATRIX]")
 print(confusion_matrix(y_test, predictions))
-# Save model
-joblib.dump(model, "ML/model.pkl")
 
 # ==============================
 # SAVE MODEL
 # ==============================
-joblib.dump(model, "Backend/ml/model.pkl")
+joblib.dump(model, "ML/model.pkl")
 
 print("\n[SUCCESS] Model saved")
 print(Counter(y))

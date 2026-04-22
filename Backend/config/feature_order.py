@@ -16,5 +16,7 @@ FEATURE_ORDER = [
     "url_encoding_count",
     "hyphen_count",
     "suspicious_tld",
-    "digit_ratio"
+    "digit_ratio",
+    "domain_length",
+    "digit_count"
 ]

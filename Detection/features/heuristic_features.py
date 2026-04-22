@@ -10,9 +10,7 @@ import math
 import re
 from urllib.parse import urlparse
 
-
-from Backend.config import Config
-
+from Backend.config.config import Config
 
 def extract_heuristic_features(url: str) -> dict:
 

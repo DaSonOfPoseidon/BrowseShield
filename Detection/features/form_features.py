@@ -12,7 +12,6 @@ trained model's expected feature names.
 
 from urllib.parse import urlparse
 
-
 def extract_form_features(page_data, url=None):
     """
     Convert extension-provided DOM indicators into ML-ready features.

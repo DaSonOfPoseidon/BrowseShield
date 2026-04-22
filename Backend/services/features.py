@@ -7,7 +7,7 @@ Heuristic feature extraction for URL and email assessment.
 import re
 from urllib.parse import urlparse
 
-from Backend.config import Config
+from Backend.config.config import Config
 
 
 def build_url_features(url, scan_data):

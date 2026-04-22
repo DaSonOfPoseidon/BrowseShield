@@ -1,36 +1,70 @@
+# ========================
 # Dependencies
+# ========================
 node_modules/
 .venv/
 venv/
 env/
 
+# ========================
 # Python
+# ========================
 __pycache__/
 *.py[cod]
 *.egg-info/
 dist/
 build/
 
+# ========================
 # Environment
+# ========================
 .env
 .env.*
 !.env.example
 
+# ========================
 # IDE / Editor
+# ========================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
+# ========================
 # OS
+# ========================
 .DS_Store
 Thumbs.db
 
-# Project-specific
-.serena/
-CLAUDE.md
-
+# ========================
 # Database
+# ========================
 instance/
 *.db
+
+# ========================
+# ML / Data (CRITICAL)
+# ========================
+ML/datasets/
+Backend/datasets/
+*.csv
+*.arff
+
+# ========================
+# ML Models (optional)
+# ========================
+*.pkl
+*.joblib
+
+# ========================
+# Logs / Temp
+# ========================
+*.log
+*.tmp
+
+# ========================
+# Project-specific
+# ========================
+.serena/
+CLAUDE.md

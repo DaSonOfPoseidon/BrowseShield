@@ -13,7 +13,7 @@ import jwt
 import bcrypt
 from flask import request, jsonify, g
 
-from Backend.config import Config
+from Backend.config.config import Config
 
 
 def hash_password(password):

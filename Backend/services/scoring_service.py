@@ -5,7 +5,7 @@ Combines heuristic and machine learning outputs
 to produce a final phishing risk score.
 """
 
-from Backend.config import Config
+from Backend.config.config import Config
 
 
 def combine_scores(heuristic_score, ml_probability):
@@ -49,7 +49,7 @@ def compute_final_result(heuristic_result, ml_result):
 
     # Confidence: boost when both engines agree, reduce when they disagree
     heuristic_agrees = heuristic_result["safety"] == safety
-    confidence = heuristic_result["confidence"]
+    confidence = int((1 - abs(ml_probability - heuristic_score)) * 100)
     if heuristic_agrees:
         confidence = min(95, confidence + 10)
     else:

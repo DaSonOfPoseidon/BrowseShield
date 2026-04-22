@@ -8,7 +8,7 @@ from datetime import datetime, timezone, timedelta
 
 from flask import Blueprint, request, jsonify
 
-from Backend.config import Config
+from Backend.config.config import Config
 from Backend.db.connection import get_db_connection
 from Backend.db.queries import (
     GET_USER_BY_EMAIL,

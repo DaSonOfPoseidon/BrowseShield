@@ -18,7 +18,6 @@ from Detection.features.domain_checks import extract_domain_features
 from Detection.features.form_features import extract_form_features
 from Detection.features.heuristic_features import extract_heuristic_features
 
-
 def extract_features(url, page_data=None, training_mode=True):
 
     features = {}
@@ -57,7 +56,6 @@ def extract_features(url, page_data=None, training_mode=True):
             features.update(extract_form_features(page_data))
         except Exception:
             pass
-        features.update(extract_form_features(page_data, url))
 
     # ==============================
     # HEURISTIC FEATURES 

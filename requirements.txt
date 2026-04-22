@@ -1,0 +1,10 @@
+Flask
+psycopg2-binary
+python-dotenv
+PyJWT
+bcrypt
+scikit-learn
+numpy
+joblib
+python-whois
+pandas

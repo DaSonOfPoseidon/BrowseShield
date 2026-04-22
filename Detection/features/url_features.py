@@ -4,13 +4,10 @@ url_features.py
 Extracts phishing indicators directly from the URL string.
 """
 
-import re
 import ipaddress
 from urllib.parse import urlparse
 
-
-from Backend.config import Config
-
+from Backend.config.config import Config
 
 def extract_url_features(url):
     """
@@ -33,6 +30,8 @@ def extract_url_features(url):
     features["port"] = port_in_url(parsed)
     features["Abnormal_URL"] = abnormal_url(domain)
 
+    features.update(extra_features(url, domain))
+    
     return features
 
 
