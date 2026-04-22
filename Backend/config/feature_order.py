@@ -1,0 +1,20 @@
+FEATURE_ORDER = [
+    "having_IP_Address",
+    "URL_Length",
+    "Shortining_Service",
+    "having_At_Symbol",
+    "double_slash_redirecting",
+    "Prefix_Suffix",
+    "having_Sub_Domain",
+    "HTTPS_token",
+    "port",
+    "Abnormal_URL",
+    "domain_age",
+    "dns_record",
+    "domain_validity",
+    "suspicious_keyword_count",
+    "url_encoding_count",
+    "hyphen_count",
+    "suspicious_tld",
+    "digit_ratio"
+]

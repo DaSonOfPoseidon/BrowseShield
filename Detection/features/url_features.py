@@ -114,3 +114,9 @@ def abnormal_url(domain):
         return -1
 
     return 1
+
+def extra_features(url, domain):
+    return {
+        "digit_count": sum(c.isdigit() for c in url),
+        "domain_length": len(domain),
+    }

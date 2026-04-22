@@ -11,22 +11,46 @@ from datetime import datetime
 
 
 def extract_domain_features(url):
-    """
-    Extract domain-based phishing indicators.
-    """
-
     features = {}
-
     domain = urlparse(url).netloc
 
-    features["DNSRecord"] = check_dns_record(domain)
-    features["age_of_domain"] = check_domain_age(domain)
-    features["Domain_registeration_length"] = check_domain_expiration(domain)
+    # DNS
+    features["dns_record"] = check_dns_record(domain)
 
-    # Placeholder reputation features
+    # WHOIS (single call)
+    try:
+        w = whois.whois(domain)
+
+        creation_date = w.creation_date
+        expiration_date = w.expiration_date
+
+        if isinstance(creation_date, list):
+            creation_date = creation_date[0]
+        if isinstance(expiration_date, list):
+            expiration_date = expiration_date[0]
+
+        # Domain age
+        if creation_date:
+            age_days = (datetime.now() - creation_date).days
+            features["domain_age"] = -1 if age_days < 180 else 1
+        else:
+            features["domain_age"] = -1
+
+        # Expiration
+        if expiration_date:
+            remaining_days = (expiration_date - datetime.now()).days
+            features["domain_validity"] = -1 if remaining_days < 365 else 1
+        else:
+            features["domain_validity"] = -1
+
+    except Exception:
+        features["domain_age"] = -1
+        features["domain_validity"] = -1
+
+    # Placeholder reputation features (optional)
     features["web_traffic"] = -1
-    features["Page_Rank"] = -1
-    features["Google_Index"] = -1
+    features["page_rank"] = -1
+    features["google_index"] = -1
 
     return features
 
