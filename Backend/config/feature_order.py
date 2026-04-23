@@ -18,5 +18,7 @@ FEATURE_ORDER = [
     "suspicious_tld",
     "digit_ratio",
     "domain_length",
-    "digit_count"
+    "digit_count",
+    "url_entropy",
+    "has_suspicious_keyword"
 ]

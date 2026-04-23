@@ -17,33 +17,35 @@ from Detection.features.url_features import extract_url_features
 from Detection.features.domain_checks import extract_domain_features
 from Detection.features.form_features import extract_form_features
 from Detection.features.heuristic_features import extract_heuristic_features
+from Detection.features.advanced_features import (
+    get_domain_age,
+    calculate_entropy,
+    keyword_in_url
+)
 
 def extract_features(url, page_data=None, training_mode=True):
 
     features = {}
 
     # ==============================
-    # URL-based features (SAFE)
+    # URL-based features
     # ==============================
     features.update(extract_url_features(url))
 
     # ==============================
-    # DOMAIN features (NETWORK → DISABLE DURING TRAINING)
+    # DOMAIN features
     # ==============================
     if not training_mode:
         try:
-            features.update(extract_domain_features(url))
+            domain_features = extract_domain_features(url)
+            features.update(domain_features)
         except Exception:
-            # fallback values if lookup fails
             features.update({
-                "domain_age": 0,
                 "dns_record": 0,
                 "domain_validity": 0
             })
     else:
-        # training-safe defaults
         features.update({
-            "domain_age": 0,
             "dns_record": 0,
             "domain_validity": 0
         })
@@ -61,5 +63,25 @@ def extract_features(url, page_data=None, training_mode=True):
     # HEURISTIC FEATURES 
     # ==============================
     features.update(extract_heuristic_features(url))
+
+    # ==============================
+    # ADVANCED FEATURES
+    # ==============================
+    
+    # URL entropy (safe for training)
+    features["url_entropy"] = calculate_entropy(url)
+
+    # Suspicious keywords (safe for training)
+    features["has_suspicious_keyword"] = keyword_in_url(url)
+
+    # Domain age (network-based → respect training_mode)
+    if not training_mode:
+        try:
+            features["domain_age"] = get_domain_age(url)
+        except Exception:
+            features["domain_age"] = 0
+    else:
+        # keep training consistent (no external calls)
+        features["domain_age"] = 0
 
     return features
