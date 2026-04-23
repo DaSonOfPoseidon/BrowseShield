@@ -23,6 +23,19 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(debug)
 
+    @app.after_request
+    def add_security_headers(response):
+        if app.config.get("SECURITY_HEADERS_ENABLED", True):
+            response.headers["Content-Security-Policy"] = app.config["CSP_POLICY"]
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+            if not app.debug:
+                response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+        return response
+
     @app.route("/")
     def index():
         return render_template("index.html")
