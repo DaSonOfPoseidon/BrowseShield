@@ -14,7 +14,7 @@ def login_email_key():
 @limiter.limit("3 per minute", methods=["POST"])
 def register():
     if request.method == "POST":
-        email = request.form.get("email").strip().lower()
+        email = request.form.get("email")
         password = request.form.get("password")
         existing_user = User.query.filter_by(email=email).first()
         
@@ -39,7 +39,7 @@ def register():
 @limiter.limit("5 per 10 minutes", key_func=login_email_key, methods=["POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email").strip().lower()
         password = request.form.get("password")
         user = User.query.filter_by(email=email).first()
     
