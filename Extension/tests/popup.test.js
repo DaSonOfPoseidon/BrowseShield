@@ -352,8 +352,8 @@ describe("renderReasons", () => {
   it("renders {text, anchor} reasons as <a> links to the wiki section", async () => {
     await loadPortalBase();
     renderReasons([
-      { text: "URL uses an IP address instead of a domain name", anchor: "has-ip-address" },
-      { text: "Site does not use HTTPS", anchor: "https-absent" },
+      { text: "URL uses an IP address instead of a domain name", anchor: "ip-address" },
+      { text: "Site does not use HTTPS", anchor: "no-https" },
     ]);
 
     const items = document.querySelectorAll("#reasons-list li");
@@ -361,13 +361,13 @@ describe("renderReasons", () => {
 
     const firstLink = items[0].querySelector("a");
     expect(firstLink).toBeTruthy();
-    expect(firstLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#has-ip-address`);
+    expect(firstLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#ip-address`);
     expect(firstLink.getAttribute("target")).toBe("_blank");
     expect(firstLink.getAttribute("rel")).toBe("noopener noreferrer");
     expect(firstLink.textContent).toBe("URL uses an IP address instead of a domain name");
 
     const secondLink = items[1].querySelector("a");
-    expect(secondLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#https-absent`);
+    expect(secondLink.getAttribute("href")).toBe(`${DEFAULT_PORTAL_BASE}/wiki#no-https`);
   });
 
   it("renders a plain <li> with no <a> when reason is a legacy string (backward compat)", () => {
@@ -389,14 +389,14 @@ describe("renderReasons", () => {
     await chrome.storage.local.set({ portal_base_url: "http://localhost:3000" });
     await loadPortalBase();
 
-    renderReasons([{ text: "Login form detected", anchor: "has-password-field" }]);
+    renderReasons([{ text: "Login form detected", anchor: "login-form" }]);
     const link = document.querySelector("#reasons-list a");
-    expect(link.getAttribute("href")).toBe("http://localhost:3000/wiki#has-password-field");
+    expect(link.getAttribute("href")).toBe("http://localhost:3000/wiki#login-form");
   });
 
   it("reveals the reasons-section when any reason is rendered", () => {
     expect(document.getElementById("reasons-section").hidden).toBe(true);
-    renderReasons([{ text: "A reason", anchor: "has-ip-address" }]);
+    renderReasons([{ text: "A reason", anchor: "ip-address" }]);
     expect(document.getElementById("reasons-section").hidden).toBe(false);
   });
 

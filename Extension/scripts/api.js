@@ -211,8 +211,8 @@ const STUBS = {
     safety: "suspicious",
     confidence: 72,
     reasons: [
-      { text: "Page contains a login form", anchor: "has-password-field" },
-      { text: "Multiple external links detected", anchor: "external-resource-ratio-high" },
+      { text: "Page contains a login form", anchor: "login-form" },
+      { text: "Multiple external links detected", anchor: "external-resources" },
     ],
     assessed_at: new Date().toISOString(),
   },
