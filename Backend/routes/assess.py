@@ -52,11 +52,18 @@ def assess_url():
     features = build_url_features(url, scan_data)
     heuristic_result = evaluate_risk(features)
 
+    # Of the 21 rules in services/risk_engine, 12 are URL-only and 9 require
+    # DOM data. Without DOM sections in scan_data, those 9 silently default
+    # to "clean" and the confidence calculation can't tell "absent" from
+    # "present and clean" — scale coverage down so confidence reflects that.
+    has_dom_data = any(scan_data.get(k) for k in ("forms", "links", "security"))
+    coverage = 1.0 if has_dom_data else 12 / 21
+
     # ML pipeline (fall back to heuristic-only if ML fails)
     try:
         ml_features = extract_features(url, scan_data)
         ml_result = predict_phishing(ml_features)
-        result = compute_final_result(heuristic_result, ml_result)
+        result = compute_final_result(heuristic_result, ml_result, coverage=coverage)
     except Exception:
         logger.exception("ML prediction failed, using heuristic-only result")
         result = heuristic_result
