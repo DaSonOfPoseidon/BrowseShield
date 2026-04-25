@@ -107,4 +107,24 @@ def extract_form_features(page_data, url=None):
     # Redirect: based on meta refresh or excessive redirects
     features["Redirect"] = -1 if security.get("hasMetaRefresh") else 1
 
+    # SSLfinal_State: HTTPS presence (1=HTTPS/legit, -1=no HTTPS/phishing)
+    meta = page_data.get("meta", {})
+    is_https = meta.get("isHttps")
+    if is_https is True:
+        features["SSLfinal_State"] = 1
+    elif is_https is False:
+        features["SSLfinal_State"] = -1
+    else:
+        features["SSLfinal_State"] = 0
+
+    # Favicon: external favicon signals phishing
+    features["Favicon"] = -1 if security.get("faviconExternal") else 1
+
+    # Links_pointing_to_page: always 0 (neutral/unknown).
+    # The UCI training feature measures inbound backlinks (site authority),
+    # but we only have outgoing DOM link counts at runtime. Using outgoing
+    # links as a proxy created a train/inference mismatch that penalised
+    # minimal login pages and rewarded content-heavy phish pages.
+    features["Links_pointing_to_page"] = 0
+
     return features

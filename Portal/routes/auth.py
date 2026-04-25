@@ -1,12 +1,17 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from Portal.models import db, User
-from Portal.utils.extensions import bcrypt
+from Portal.utils.extensions import bcrypt, limiter
 from flask_login import login_user, logout_user, login_required, current_user
 import requests
 
 auth = Blueprint("auth", __name__)
 
+def login_email_key():
+    email = request.form.get("email", "").strip().lower()
+    return f"login-email:{email}" if email else "login-email:unknown"
+
 @auth.route("/register", methods=["GET", "POST"])
+@limiter.limit("3 per minute", methods=["POST"])
 def register():
     if request.method == "POST":
         email = request.form.get("email")
@@ -30,9 +35,11 @@ def register():
     return render_template("register.html")
 
 @auth.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
+@limiter.limit("5 per 10 minutes", key_func=login_email_key, methods=["POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email").strip().lower()
         password = request.form.get("password")
         user = User.query.filter_by(email=email).first()
     
@@ -60,7 +67,7 @@ def login():
                 flash("Could not connect to backend")
                 print("Backend connection error:", e)
 
-            #Test for token
+            #Test for token | still need to iron this out
             print("JWT:", session.get("jwt_token"))
             return redirect("/dashboard")
         else:
@@ -82,6 +89,9 @@ def logout():
 def dashboard():
     token = session.get("jwt_token")
     scans = []
+    average_score = None
+
+    limit = request.args.get("limit", "5")
 
     if token:
         try:
@@ -95,10 +105,18 @@ def dashboard():
 
             if response.status_code == 200:
                 scans = response.json()
+                if limit != "all":
+                    scans = scans[:int(limit)]
+                if scans:
+                    total = sum((1 - item["score"]) for item in scans if item.get("score") is not None)
+                    count = sum(1 for item in scans if item.get("score") is not None)
+
+                    if count > 0:
+                        average_score = round(total / count, 4)
             else:
                 print("Failed to fetch scan data:", response.text)
 
         except Exception as e:
             print("Error connecting to backend:", e)
 
-    return render_template("dashboard.html", email=current_user.email, scans=scans)
+    return render_template("dashboard.html", email=current_user.email, scans=scans, average_score=average_score, selected_limit=limit)

@@ -1,0 +1,72 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [testing/auto-browser]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/vps_key
+          chmod 600 ~/.ssh/vps_key
+          ssh-keyscan -p "$VPS_PORT" "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          cat >> ~/.ssh/config <<EOF
+          Host vps
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port $VPS_PORT
+            IdentityFile ~/.ssh/vps_key
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Run E2E tests on VPS
+        run: |
+          ssh vps << 'REMOTE'
+            set -e
+            export DEBIAN_FRONTEND=noninteractive
+
+            # Ensure Node.js is available
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+              apt-get install -y nodejs
+            fi
+
+            # Install Playwright system dependencies (Chromium libs + xvfb)
+            apt-get update -qq
+            apt-get install -y -qq xvfb
+            cd /opt/BrowseShield/e2e
+            npm install --silent
+            npx playwright install --with-deps chromium
+
+            # Use xvfb to provide a virtual display (extensions require headed mode)
+            xvfb-run --auto-servernum bash run.sh
+          REMOTE
+
+      - name: Download reports from VPS
+        if: always()
+        run: |
+          mkdir -p reports
+          scp -r vps:/opt/BrowseShield/e2e/reports/* reports/ || true
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-reports-${{ github.run_id }}
+          path: ./reports/
+          retention-days: 30
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -f ~/.ssh/vps_key

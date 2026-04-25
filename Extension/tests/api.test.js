@@ -12,10 +12,12 @@ const {
   assessEmail,
   isAuthenticated,
   getToken,
+  getTokenExpiry,
   saveToken,
   clearToken,
   request,
   refreshAccessToken,
+  _resetRefreshPromise,
   validateBaseUrl,
   ApiError,
   _setUseStubs,
@@ -25,6 +27,7 @@ beforeEach(() => {
   resetStorage();
   vi.restoreAllMocks();
   _setUseStubs(false);
+  _resetRefreshPromise();
 });
 
 // Helper to create token data matching the saveToken signature
@@ -475,5 +478,109 @@ describe("validateBaseUrl", () => {
 
   it("rejects invalid URLs", () => {
     expect(() => validateBaseUrl("not-a-url")).toThrow(ApiError);
+  });
+});
+
+// --- getTokenExpiry ---
+
+describe("getTokenExpiry", () => {
+  it("returns null when no expiry stored", async () => {
+    expect(await getTokenExpiry()).toBeNull();
+  });
+
+  it("returns the stored expires_at value", async () => {
+    await saveToken(tokenData({ expires_in: 900 }));
+    const expiry = await getTokenExpiry();
+    expect(typeof expiry).toBe("number");
+    expect(expiry).toBeGreaterThan(Date.now());
+  });
+});
+
+// --- Refresh mutex ---
+
+describe("refreshAccessToken mutex", () => {
+  it("deduplicates concurrent refresh calls into one fetch", async () => {
+    await saveToken(tokenData({ refresh_token: "rt" }));
+
+    let fetchCount = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      fetchCount++;
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: "new-token",
+            refresh_token: "new-refresh",
+            expires_in: 3600,
+          }),
+      });
+    });
+
+    // Fire three concurrent refreshes
+    const [r1, r2, r3] = await Promise.all([
+      refreshAccessToken(),
+      refreshAccessToken(),
+      refreshAccessToken(),
+    ]);
+
+    // All three should resolve to the same data
+    expect(r1.access_token).toBe("new-token");
+    expect(r2.access_token).toBe("new-token");
+    expect(r3.access_token).toBe("new-token");
+    // Only one fetch should have been made
+    expect(fetchCount).toBe(1);
+  });
+
+  it("allows a new refresh after the previous one completes", async () => {
+    await saveToken(tokenData({ refresh_token: "rt" }));
+
+    let callNum = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callNum++;
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: `token-${callNum}`,
+            refresh_token: `refresh-${callNum}`,
+            expires_in: 3600,
+          }),
+      });
+    });
+
+    const first = await refreshAccessToken();
+    const second = await refreshAccessToken();
+
+    expect(first.access_token).toBe("token-1");
+    expect(second.access_token).toBe("token-2");
+    expect(callNum).toBe(2);
+  });
+
+  it("clears mutex on failure so next call can retry", async () => {
+    await saveToken(tokenData({ refresh_token: "rt" }));
+
+    let callNum = 0;
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      callNum++;
+      if (callNum === 1) {
+        return Promise.resolve({ ok: false, status: 403, statusText: "Forbidden" });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: "recovered",
+            refresh_token: "new-rt",
+            expires_in: 3600,
+          }),
+      });
+    });
+
+    await expect(refreshAccessToken()).rejects.toThrow("Token refresh failed");
+
+    // Mutex should be cleared — next call should succeed
+    const result = await refreshAccessToken();
+    expect(result.access_token).toBe("recovered");
+    expect(callNum).toBe(2);
   });
 });

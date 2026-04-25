@@ -107,6 +107,16 @@ function scanSecurity() {
     } catch {}
   }
 
+  // Popup detection: inline handlers calling window.open
+  const popupDetected = !!document.querySelector(
+    '[onclick*="window.open"], [onload*="window.open"]'
+  );
+
+  // Mouseover status bar manipulation
+  const onMouseoverDetected = !!document.querySelector(
+    '[onmouseover*="window.status"]'
+  );
+
   return {
     faviconExternal,
     iframeCount: iframes.length,
@@ -117,6 +127,8 @@ function scanSecurity() {
     hasMetaRefresh,
     totalResourceCount: resources.length,
     externalResourceCount,
+    popupDetected,
+    onMouseoverDetected,
   };
 }
 

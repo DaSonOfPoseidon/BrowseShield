@@ -6,8 +6,47 @@ const tabResults = new Map();
 // Tabs where email-scanner.js has been injected on-demand
 const injectedEmailTabs = new Set();
 
+// --- Token auto-refresh via chrome.alarms ---
+
+const TOKEN_REFRESH_ALARM = "token-refresh";
+const REFRESH_AHEAD_MS = 2 * 60 * 1000; // Fire 2 min before expiry
+
+async function scheduleTokenRefresh() {
+  const expiresAt = await api.getTokenExpiry();
+  if (!expiresAt) return;
+
+  const delayMs = Math.max(expiresAt - Date.now() - REFRESH_AHEAD_MS, 0);
+  // chrome.alarms minimum granularity is ~1 minute; use delayInMinutes
+  const delayMinutes = Math.max(delayMs / 60000, 0.08); // floor ~5 seconds
+
+  chrome.alarms.create(TOKEN_REFRESH_ALARM, { delayInMinutes: delayMinutes });
+}
+
+function cancelTokenRefresh() {
+  chrome.alarms.clear(TOKEN_REFRESH_ALARM);
+}
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== TOKEN_REFRESH_ALARM) return;
+
+  try {
+    await api.refreshAccessToken();
+    await scheduleTokenRefresh(); // Reschedule with new expiry
+  } catch {
+    // Refresh failed — session is dead, signal the popup
+    await api.clearToken();
+    await chrome.storage.local.set({ auth_expired: true });
+  }
+});
+
+// Schedule on browser startup (service worker may restart)
+chrome.runtime.onStartup.addListener(() => {
+  scheduleTokenRefresh();
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   console.log("BrowseShield installed");
+  scheduleTokenRefresh();
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -43,12 +82,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "LOGIN") {
     api
       .login(message.email, message.password)
-      .then((data) => sendResponse({ success: true, user: data.user }))
+      .then(async (data) => {
+        await chrome.storage.local.remove("auth_expired");
+        await scheduleTokenRefresh();
+        sendResponse({ success: true, user: data.user });
+      })
       .catch((err) => sendResponse({ success: false, error: err.message }));
     return true; // async
   }
 
   if (message.type === "LOGOUT") {
+    cancelTokenRefresh();
     api
       .logout()
       .then(() => sendResponse({ success: true }))

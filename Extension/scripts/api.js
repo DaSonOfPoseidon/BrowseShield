@@ -104,7 +104,30 @@ async function isTokenExpiringSoon() {
   return Date.now() >= expires_at - REFRESH_BUFFER_MS;
 }
 
+export async function getTokenExpiry() {
+  const { expires_at } = await chrome.storage.local.get("expires_at");
+  return expires_at ?? null;
+}
+
+// Mutex: deduplicate concurrent refresh calls
+let _refreshPromise = null;
+
+export function _resetRefreshPromise() {
+  _refreshPromise = null;
+}
+
 export async function refreshAccessToken() {
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = _doRefresh();
+  try {
+    return await _refreshPromise;
+  } finally {
+    _refreshPromise = null;
+  }
+}
+
+async function _doRefresh() {
   const { refresh_token } = await chrome.storage.local.get("refresh_token");
   if (!refresh_token) throw new ApiError("No refresh token", 401);
 

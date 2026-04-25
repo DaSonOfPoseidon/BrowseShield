@@ -23,11 +23,6 @@ def extract_domain_features(url):
     features["age_of_domain"] = check_domain_age(domain)
     features["Domain_registeration_length"] = check_domain_expiration(domain)
 
-    # Placeholder reputation features
-    features["web_traffic"] = -1
-    features["Page_Rank"] = -1
-    features["Google_Index"] = -1
-
     return features
 
 
@@ -65,7 +60,8 @@ def check_domain_age(domain):
             return 1
 
     except Exception:
-        return -1
+        # Unknown age — default to neutral rather than phishing
+        return 0
 
 
 def check_domain_expiration(domain):
@@ -89,4 +85,5 @@ def check_domain_expiration(domain):
             return 1
 
     except Exception:
-        return -1
+        # Unknown registration — default to neutral rather than phishing
+        return 0
