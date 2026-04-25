@@ -137,7 +137,7 @@ def assess_email():
     return jsonify({
         "safety": "suspicious",
         "confidence": 50,
-        "reasons": ["Email analysis not yet implemented"],
+        "reasons": [{"text": "Email analysis not yet implemented", "anchor": None}],
         "phishingIndicators": {},
         "assessed_at": datetime.now(timezone.utc).isoformat(),
     })
