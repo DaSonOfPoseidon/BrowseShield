@@ -10,6 +10,23 @@ const COLORS = {
 
 const STAR_RATINGS = { safe: 5, suspicious: 3, unsafe: 1 };
 
+// ── Portal URL (for wiki links in the reasons list) ──
+
+const DEFAULT_PORTAL_BASE = "https://browseshield.dev";
+let _portalBase = DEFAULT_PORTAL_BASE;
+
+async function loadPortalBase() {
+  try {
+    const { portal_base_url } = await chrome.storage.local.get("portal_base_url");
+    _portalBase =
+      typeof portal_base_url === "string" && portal_base_url
+        ? portal_base_url
+        : DEFAULT_PORTAL_BASE;
+  } catch {
+    _portalBase = DEFAULT_PORTAL_BASE;
+  }
+}
+
 // ── Init ──
 
 async function init() {
@@ -21,6 +38,9 @@ async function init() {
   }
 
   document.body.classList.add("state-loading");
+
+  // Preload portal base so reason links have the right host by the time we render.
+  await loadPortalBase();
 
   // Show URL immediately
   if (tab.url) {
@@ -252,9 +272,23 @@ function renderReasons(reasons) {
 
   const list = $("reasons-list");
   list.replaceChildren();
-  for (const reason of reasons) {
+  for (const item of reasons) {
+    // Accept both the legacy string shape and the {text, anchor} object shape.
+    const { text, anchor } =
+      typeof item === "string" ? { text: item, anchor: null } : (item ?? {});
+    if (!text) continue;
+
     const li = document.createElement("li");
-    li.textContent = reason;
+    if (typeof anchor === "string" && anchor) {
+      const a = document.createElement("a");
+      a.href = `${_portalBase}/wiki#${anchor}`;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = text;
+      li.appendChild(a);
+    } else {
+      li.textContent = text;
+    }
     list.appendChild(li);
   }
   $("reasons-section").hidden = false;
@@ -372,7 +406,7 @@ function showError(msg) {
 
 // Export for testing (no-op in browser)
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { renderUrl, renderEmailMode, setupAuth, init, renderEntry, handleScanUpdate, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons };
+  module.exports = { renderUrl, renderEmailMode, setupAuth, init, renderEntry, handleScanUpdate, renderSuspiciousLinks, applyStatus, renderAssessment, sendMessage, showStatus, showError, renderProgressRing, renderStars, renderReasons, loadPortalBase, DEFAULT_PORTAL_BASE };
 } else {
   init();
 }

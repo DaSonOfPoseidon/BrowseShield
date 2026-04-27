@@ -79,10 +79,13 @@
         }
 
         .explanation-card {
+            margin-bottom: 24px;
             background-color: #1e293b;
             border: 1px solid #334155;
+            border-left: 5px solid #007bff;
             padding: 15px;
             border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0,0.5);
         }
 
         .explanation-card h4 {
@@ -95,6 +98,16 @@
         .explanation-card p {
             font-size: 0.95rem;
             margin: 8px 0;
+        }
+
+        @keyframes highlight-fade {
+            0% { background-color: #fff9c4; transfrom: scale(1.02); border-color: #fbc02d; }
+            100% { background-color: #1e293b; transfrom: scale (1.0); border-color: #334155; }
+        }
+
+        .explanation-card:target {
+            animation: highlight-fade 4s ease-out forwards;
+            scroll-margin-top: 120px;
         }
 
         @media (max-width: 600px) {
@@ -177,127 +190,127 @@
         <h2>Explanations</h2>
         <div class="explanations-grid">
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="ip-address">
                 <h4>IP Address instead of Domain</h4>
                 <p><strong>What:</strong> Address bar shows numbers instead of a URL name.</p>
                 <p><strong>Why Bad:</strong> Malicious websites may try and hide identity and not have a registered domain name.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="at-symbol">
                 <h4>Url contains @ symbol</h4>
                 <p><strong>What:</strong> The URL has an @ symbol. </p>
                 <p><strong>Why Bad:</strong> Scammers try and hide parts of URL and create a misleading link with an @ symbol.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="subdomain">
                 <h4>URL subdomain impersonates known brand</h4>
                 <p><strong>What:</strong> A popular brand is used in the subdomain. </p>
                 <p><strong>Why Bad:</strong> Scammers try and trick users and gaining their trust thinking they are clicking on the actual site.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="internationalized-characters">
                 <h4>Domain uses internationalized charcters</h4>
                 <p><strong>What:</strong> The domain may contain characters from other languages but look like English. </p>
                 <p><strong>Why Bad:</strong> This looks like a legitimate site, but it actually could be a malicious link pretending to be the real thing.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="different-login">
                 <h4>Login form submits credentials to a different domain</h4>
                 <p><strong>What:</strong> Sends your username and password to another domain than the one you are on.</p>
                 <p><strong>Why Bad:</strong> This sends your information to another domain which is most likely stealing that information  and looking to gain access to your accounts.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="TLD-phishing">
                 <h4>Domain uses a TLD commonly associated with phishing</h4>
                 <p><strong>What:</strong> Unlike a .org, this site ends in a most common phishing way, like .xyz or .top that are cheap, disposable sites.</p>
                 <p><strong>Why Bad:</strong> Cheap domains that can be bought and used for large scale phishing attacks to gain ones information.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="port-number">
                 <h4>URL contains a non-standard port number</h4>
                 <p><strong>What:</strong> The URL contains a specific port numbers.</p>
                 <p><strong>Why Bad:</strong> Most web uses standard port numbers, but the non-standard ports could show a server running on a hijacked service.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="excessive-subdomains">
                 <h4>URL has excessive subdomains</h4>
                 <p><strong>What:</strong> The URL contains many parts and sections to it.</p>
                 <p><strong>Why Bad:</strong> Create long, hidden address inside of a domain that hides the actual suspicious domain so you can’t notice it easily.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="hyphens">
                 <h4>Domain contains many hyphens</h4>
                 <p><strong>What:</strong> The domain contains many hyphens/dashes. </p>
                 <p><strong>Why Bad:</strong> Many legitimate sites don’t have hyphens, while scammers will create a name with hyphens that looks like the real companies website.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="no-https">
                 <h4>Site does not use HTTPS</h4>
                 <p><strong>What:</strong> The site uses HTTP:// instead of the secure HTTPS://.</p>
                 <p><strong>Why Bad:</strong> The site is not encrypted. Many new phishing sites skip this to just be able to keep pushing out more websites to scam with.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="long-url">
                 <h4>Unusually long URL</h4>
                 <p><strong>What:</strong> The URL contains many characters. </p>
                 <p><strong>Why Bad:</strong> This is used to hide malicious codes, redirects, and other suspicious things from the view of the user.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="link-shortener">
                 <h4>URL uses a link shortening service</h4>
                 <p><strong>What:</strong> The URL uses a service to shorten their link.</p>
                 <p><strong>Why Bad:</strong> This makes it so the destination is masked, so the user is unable to see where the link goes before clicking on it.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="percent-encoding">
                 <h4>URL contains excessive percent-encoding</h4>
                 <p><strong>What:</strong> The URL has things such as %20 or other codes in them.</p>
                 <p><strong>Why Bad:</strong> This is used to confuse and jumble the URL so the user can’t easily detect its bad.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="login-form">
                 <h4>Page contains a login form</h4>
                 <p><strong>What:</strong> The page is asking you to login with some username/email and password.</p>
                 <p><strong>Why Bad:</strong> Not bad by itself, but be cautious whenever typing in sensitive information on a website.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="external-favicon">
                 <h4>Page favicon loaded from external domain</h4>
                 <p><strong>What:</strong> The small icon on the browser tab is pulled from somewhere else.</p>
                 <p><strong>Why Bad:</strong> Scammers can “borrow” the brands real icon they are trying to impersonate to make their site look more legitimate.</p>
             </div>
 
-            <div class="explanation-card">
-                <h4>Page contaisn hidden iframes</h4>
+            <div class="explanation-card" id="hidden-iframes">
+                <h4>Page contains hidden iframes</h4>
                 <p><strong>What:</strong> The page has invisible “windows” on the site. </p>
                 <p><strong>Why Bad:</strong> Can load malicious content and have the user unknowingly click on things in the background without their permission.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="right-click-disabled">
                 <h4>Page disables right-click (prevents inspection)</h4>
                 <p><strong>What:</strong> The site blocks you from opening the inspection, right-click menu.</p>
                 <p><strong>Why Bad:</strong> This is a way to stop people from seeing what is going on behind the scenes like where your data is being sent to. They are trying to hide information from you.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="non-functional-links">
                 <h4>Many non-functional links of page</h4>
                 <p><strong>What:</strong> Links on the site go no where, such as clicking on an About Us link. </p>
                 <p><strong>Why Bad:</strong> A lot of scammers only worry about the main functionally of the home page to steal information, so they don’t bother filling in all the other buttons that are just there for show to look mor legitimate.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="thin-login">
                 <h4>Thin page with login form (minimal content)</h4>
                 <p><strong>What:</strong> Basically nothing on the page except for a login box.</p>
                 <p><strong>Why Bad:</strong> Used for data harvesting because real websites would usually have some sort of navigation even without needing to login.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="auto-redirect">
                 <h4>Page uses auto-redirect</h4>
                 <p><strong>What:</strong> The page auto-redirects you to another site.</p>
                 <p><strong>Why Bad:</strong> Used to send users to other sites and have hidden links to hide origin of the phishing/scam site.</p>
             </div>
 
-            <div class="explanation-card">
+            <div class="explanation-card" id="external-resources">
                 <h4>Most page resources loaded from external domains</h4>
                 <p><strong>What:</strong> Almost all of the images and scripts are being loaded from another site.</p>
                 <p><strong>Why Bad:</strong> A site looking and pretending to be the real company by having it link directly from the legitimate site.</p>
@@ -324,9 +337,9 @@
     <section id="password-checker">
         <h2>Password Strength Checker</h2>
         <div class="info-box">
-            <p style="color: #e5ebee">Test your password strength</p>
+            <p style="color: #e5ebee">Test your password strength.</p>
 
-            <input type="password" id="passInput" placeholder="Enter password for testing."
+            <input type="password" id="passInput" placeholder="Enter password for testing"
                 style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 10px; box-sizing: border-box;">
 
             <div id="strength-bar" style="height: 10px; width: 0%; border-radius: 5px; transition: 0.3s; margin-bottom: 10px;"></div>
@@ -342,7 +355,7 @@
                     </ul>
             </div>
 
-    <a href="/dashboard" class="back-link">Return to Dashboard</a>
+    <a href="/dashboard" class="back-link">Back to Dashboard</a>
 
     <script>
         const passInput = document.getElementById('passInput');
