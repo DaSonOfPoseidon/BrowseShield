@@ -14,7 +14,7 @@ def get_user_data():
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT ar.url, dr.final_score, dr.classification, dr.created_at
+                SELECT dr.final_score, dr.classification, dr.created_at
                 FROM analysis_requests ar
                 JOIN detection_results dr ON ar.id = dr.analysis_id
                 WHERE ar.user_id = %s
@@ -28,12 +28,11 @@ def get_user_data():
 
     data = []
     for row in rows:
-        formatted_time = row[3].strftime("%b %d, %Y at %I:%M %p")
+        formatted_time = row[2].strftime("%b %d, %Y at %I:%M %p")
 
         data.append({
-            "url": row[0],
-            "score": row[1],
-            "classification": row[2],
+            "score": row[0],
+            "classification": row[1],
             "timestamp": formatted_time,
         })
 
