@@ -119,17 +119,17 @@
 
         .scan-fill {
             height: 100%;
-            transition: width 0.3s ease;
-            transform-origin: left;
+            width: 0;
+            transition: width 0.8s ease;
             animation: fillBar 1s ease-out forwards;
         }
 
         @keyframes fillBar {
             from {
-                transform: scaleX(0);
+                width: 0;
             }
             to {
-                transform: scaleX(1);
+                width: var(--safe-percent);
             }
         }
 
@@ -245,26 +245,6 @@
 
         .filter-container select:focus {
             border-color: #94a3b8;
-        }
-
-        .fill-100 {
-            width: 100%;
-        }
-
-        .fill-75 {
-            width: 75%;
-        }
-
-        .fill-50 {
-            width: 50%;
-        }
-
-        .fill-25 {
-            width: 25%;
-        }
-
-        .fill-10 {
-            width: 10%;
         }
 
         .scan-header {
@@ -437,14 +417,7 @@
                     </div>
                 
                     <div class="scan-bar">
-                        <div class="scan-fill 
-                            {% if safe_percent >= 90 %}fill-100
-                            {% elif safe_percent >= 75 %}fill-75
-                            {% elif safe_percent >= 50 %}fill-50
-                            {% elif safe_percent >= 25 %}fill-25
-                            {% else %}fill-10
-                            {% endif %}">
-                        </div>
+                        <div class="scan-fill" style="--safe-percent: {{ safe_percent }}%;"></div>
                     </div>
                 
                     <p class="scan-explanation">
