@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, g
+from zoneinfo import ZoneInfo
 
 from Backend.db.connection import get_db_connection
 from Backend.utils.auth import jwt_required
@@ -24,11 +25,16 @@ def get_user_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    from datetime import datetime
-
     data = []
     for row in rows:
-        formatted_time = row[2].strftime("%b %d, %Y at %I:%M %p")
+        created_at = row[2]
+
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=ZoneInfo("UTC"))
+
+        central_time = created_at.astimezone(ZoneInfo("America/Chicago"))
+
+        formatted_time = central_time.strftime("%b %d, %Y at %I:%M %p")
 
         data.append({
             "score": row[0],
